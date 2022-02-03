@@ -14,14 +14,14 @@ import Order from "./types/Order";
  *  token state вынести в синглтон. или лучше Redux
  */
 export default class ServiceApi {
-    constructor(config = {}) {
-        if (!config['testId']) {
+    constructor(testId, host, token) {
+        if (!testId) {
             throw new Error('testId must be defined.');
         }
-        this.testId = config['testId'];
-        this.host = config['host'] ?? HOST;
-        this.token = config['token'];
-        this.storage = new ProgressStorage(config.testId);
+        this.testId = testId;
+        this.host = host ?? HOST;
+        this.token = token;
+        this.storage = new ProgressStorage(testId);
         this.test = null; // loaded brief about test
         this.question = null; // loaded question (current question)
     }
@@ -97,11 +97,13 @@ export default class ServiceApi {
 
     saveResult() {
         console.log('Saving...');
-        return axios.post(this.buildUrl('/save/' + this.testId + '/'), {
-            progress: this.storage.getAnswers(),
-        }, {
-            headers: {'token': this.token}
-        }).then(response => {
+        return axios(this.tokenizedRequest({
+            method: 'post',
+            url: this.buildUrl(`/save/${this.testId}/`),
+            data: {
+                progress: this.storage.getAnswers(),
+            }
+        })).then(response => {
             this.token = response.headers['x-token'];
             const key = response.data.key;
             this.storage.setFinished(key);
@@ -110,7 +112,6 @@ export default class ServiceApi {
     }
 
     result() {
-        console.log(this.token)
         return axios(this.tokenizedRequest({
             method: 'get',
             url: this.buildUrl(`/result/${this.testId}/?key=${this.storage.resultKey()}`)

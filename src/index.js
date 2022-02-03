@@ -6,13 +6,17 @@ import TncEventDispatcher from "./events/TncEventDispatcher";
 import './style.scss'
 
 export default class Testonomica {
-    constructor() {
+    constructor(testId, host, token) {
+        this.api = new ServiceApi(testId, host, token);
         this.dispatcher = new TncEventDispatcher();
     }
 
-    createApp(tag, testId, host, token) {
-        const api = new ServiceApi({testId, host, token});
-        ReactDOM.render(<App api={api} dispatcher={this.dispatcher}/>, tag);
+    createApp(tag, config) {
+        ReactDOM.render(<App api={this.api} config={config} dispatcher={this.dispatcher}/>, tag);
+    }
+
+    status() {
+        this.api.progressStatus();
     }
 
     addEventListener(name, callback) {
