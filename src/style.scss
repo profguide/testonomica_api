@@ -160,20 +160,23 @@
   column-gap: 15px;
   row-gap: 15px;
 
+  &_gradient {
+  }
+
   &__options {
     display: flex;
     flex-direction: column;
     //flex-direction: row;
     flex-wrap: wrap;
-    gap: 20px;
     margin-top: 15px;
-
-    &_gradient {
-      //flex-direction: row;
-    }
   }
 
   &__option-wrapper {
+    margin-bottom: 20px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
   &__option-img {
@@ -223,6 +226,250 @@
   }
 }
 
+// Тип вопроса (а-ля талантум)
+.tnc-form-gradient {
+  max-width: 900px;
+
+  // сравниваемые единицы
+  &__compared {
+    display: none;
+
+    @media (min-width: 769px) {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    &-item {
+      font-weight: bold;
+      width: 50%;
+
+      &:first-child {
+        padding-right: 10px;
+      }
+
+      &:last-child {
+        padding-left: 10px;
+        text-align: right;
+      }
+    }
+  }
+
+  &__values {
+    display: none;
+
+    @media (min-width: 769px) {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    &-item {
+
+    }
+  }
+
+  .tnc-q-form__options {
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+    position: relative;
+
+    @media (min-width: 769px) {
+      flex-flow: row;
+      margin-top: 0; // изначально есть большой отступ
+    }
+
+    @media (min-width: 769px) {
+      &:after {
+        content: '';
+        height: 2px;
+        background: #8facea52;
+        position: absolute;
+        top: 19px;
+        left: 0;
+        right: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      &:after {
+        content: '';
+        width: 2px;
+        background: #8facea52;
+        position: absolute;
+        top: 0;
+        left: 18px;
+        bottom: 0;
+      }
+    }
+  }
+
+  // враппер кнопки
+  .tnc-q-form__option-wrapper {
+    position: relative;
+    z-index: 10;
+    padding: 0 5px;
+    margin-bottom: 0;
+
+    &:active {
+      .tnc-q-form__option-btn {
+        border-color: #e9ff00 !important;
+      }
+      //&:before {
+      //  content: '';
+      //  z-index: -1;
+      //  position: absolute;
+      //  top: 0;
+      //  bottom: 0;
+      //  left: 0;
+      //  right: 0;
+      //  background: #f7f7f7;
+      //}
+    }
+
+    @media (max-width: 769px) {
+      display: flex;
+      flex-flow: row;
+      padding: 0;
+      margin-bottom: 30px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .tnc-q-form__option-btn {
+        border-width: 3px;
+        margin-left: 7px;
+
+        &:after {
+          display: none
+        }
+      }
+
+      &:first-child, &:last-child {
+        // первый и последний: бэкграунд, скрывающий линию
+        &:after {
+          content: '';
+          position: absolute;
+          z-index: -5;
+          background: #fff;
+          left: 0;
+          right: 0;
+        }
+
+        // первый и последний круги больше
+        .tnc-q-form__option-btn {
+          margin-left: 0;
+          width: 40px;
+          min-width: 40px;
+          height: 40px;
+          min-height: 40px;
+          border-width: 4px;
+        }
+
+        .tnc-q-form__option-name {
+          font-weight: bold;
+          color: #477be4;
+          align-self: center;
+        }
+      }
+
+      &:first-child {
+        &:after {
+          top: 0;
+          bottom: 50%;
+        }
+      }
+
+      &:last-child {
+        &:after {
+          top: 50%;
+          bottom: 0;
+        }
+      }
+
+      &:not(:first-child):not(:last-child) {
+        .tnc-q-form__option-name {
+          margin-left: 22px;
+        }
+      }
+    }
+
+    &:first-child {
+      padding-left: 0;
+    }
+
+    &:last-child {
+      padding-right: 0;
+    }
+
+    &:nth-of-type(2), &:nth-of-type(4) {
+      .tnc-q-form__option-btn {
+        border-color: #6791e3;
+
+        &:after {
+          background-color: #6791e3;
+        }
+      }
+    }
+
+    &:nth-of-type(3) {
+      .tnc-q-form__option-btn {
+        border-color: #8facea;
+
+        &:after {
+          background-color: #8facea;
+        }
+      }
+    }
+  }
+
+  // кнопка
+  .tnc-q-form__option-btn {
+    border: 1px solid #477be4;
+    border-radius: 50%;
+    width: 25px;
+    min-width: 25px;
+    height: 25px;
+    min-height: 25px;
+    padding: 0;
+    position: relative;
+
+    @media (max-width: 768px) {
+      align-self: center;
+    }
+
+    &:after {
+      content: '';
+      display: block;
+      position: absolute;
+      background: #477be4;
+      border-radius: 50%;
+      height: 13px;
+      width: 13px;
+      top: 5px;
+      left: 5px;
+    }
+
+    &:hover {
+      border-color: #2e59b1;
+
+      &:after {
+        background: #2e59b1;
+      }
+    }
+  }
+
+  // text mobile
+  .tnc-q-form__option-name {
+    display: block;
+    margin-left: 15px;
+
+    @media (min-width: 769px) {
+      display: none;
+    }
+  }
+}
+
 .tnc-q-nav {
   &__btn {
     border: 1px solid #f8f8f8;
@@ -246,6 +493,8 @@
   gap: 15px;
 
   &__counters {
+    color: #697177;
+    font-size: 15px;
   }
 
   &__line-wrapper {
@@ -263,6 +512,7 @@
   &__title {
     margin-bottom: 30px;
   }
+
   &__subtitle {
     margin-bottom: 30px;
   }

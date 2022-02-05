@@ -11,14 +11,24 @@ export default class FormGradient extends Component {
         this.options = this.options.bind(this);
     }
 
+    name(n) {
+        if (n === 1 || n === 3) {
+            return 'Частично описывает меня';
+        }
+        return 'Нейтрально';
+    }
+
     options() {
         return this.props.options.map((option, i) => {
                 return (
-                    <div key={i} className={'tnc-q-form__option-wrapper'}>
+                    <div key={i} className={'tnc-q-form__option-wrapper'}
+                         onClick={() => this.props.selectionHandler(option.value)}>
                         <button
                             disabled={this.props.isLoading}
-                            onClick={() => this.props.selectionHandler(option.value)}
-                            className={'tnc-btn tnc-q-form__option-btn'}>{option.text}</button>
+                            className={'tnc-btn tnc-q-form__option-btn'}>
+                        </button>
+                        {/* если 2 и 4, то Точно описывает меня, если 3, то Нейтрально */}
+                        <span className="tnc-q-form__option-name">{i === 0 || i === 4 ? option.text : this.name(i)}</span>
                     </div>
                 )
             }
@@ -27,9 +37,19 @@ export default class FormGradient extends Component {
 
     render() {
         return (
-            <div className={'tnc-q__form tnc-q-form'}>
-                <div className={'tnc-q-form__options tnc-q-form__options_gradient'}>
+            <div className="tnc-q__form tnc-q-form tnc-form-gradient">
+                <div className="tnc-form-gradient__compared">
+                    <div className="tnc-form-gradient__compared-item">{this.props.options[0].text}</div>
+                    <div
+                        className="tnc-form-gradient__compared-item">{this.props.options[this.props.options.length - 1].text}</div>
+                </div>
+                <div className="tnc-q-form__options">
                     {this.options()}
+                </div>
+                <div className="tnc-form-gradient__values">
+                    <div className="tnc-form-gradient__values-item">Точно описывает меня</div>
+                    <div className="tnc-form-gradient__values-item">Нейтрально</div>
+                    <div className="tnc-form-gradient__values-item">Точно описывает меня</div>
                 </div>
                 <NavigationButtons
                     isLoading={this.props.isLoading}
