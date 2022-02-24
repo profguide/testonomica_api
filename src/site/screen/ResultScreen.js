@@ -11,10 +11,14 @@ export default class ResultScreen extends Component {
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        const key = await this.api.resultKey();
         this.api.result().then(response => {
-            this.setState({...this.state, isLoading: false, result: response.data});
+            this.setState({...this.state, isLoading: false, key, result: response.data});
         }).catch(error => {
+            if (error.response) {
+                console.error(error.response.data.detail);
+            }
             console.error(error);
             this.setState({...this.state, isLoading: false, error: 'Произошла ошибка во время загрузки результата.'});
         });
@@ -27,7 +31,7 @@ export default class ResultScreen extends Component {
             return this.state.error;
         }
 
-        const url = 'https://testonomica.com/tests/result/' + this.api.resultKey() + '/';
+        const url = 'https://testonomica.com/tests/result/' + this.state.key + '/';
         return (
             <div className={'tnc-result'}>
                 <h1 className={'tnc-result__title'}>{this.props.test.name}</h1>

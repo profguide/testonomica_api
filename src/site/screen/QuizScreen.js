@@ -51,28 +51,28 @@ export default class QuizScreen extends Component {
 
     // The user made his choice
     selectionHandler(value) {
-        this.saveAndForward(value);
+        return this.saveAndForward(value);
     }
 
     start() {
         this.setState({...this.state, isLoading: true});
         this.api.clear();
-        this.wrapQuestionResponse(this.api.first());
+        return this.wrapQuestionResponse(this.api.first());
     }
 
     next() {
         this.setState({...this.state, isLoading: true});
-        this.wrapQuestionResponse(this.api.next());
+        return this.wrapQuestionResponse(this.api.next());
     }
 
     prev() {
         this.setState({...this.state, isLoading: true});
-        this.wrapQuestionResponse(this.api.prev());
+        return this.wrapQuestionResponse(this.api.prev());
     }
 
     // Forward button clicked: save answer and load the next question
     goForwardHandler() {
-        this.saveAndForward(null);
+        return this.saveAndForward(null);
     }
 
     // Back button clicked: load the previous question
@@ -80,31 +80,38 @@ export default class QuizScreen extends Component {
         this.prev();
     }
 
-    saveAndForward(value) {
+    async saveAndForward(value) {
         // save the answer
-        this.api.addAnswer(value);
-        if (!this.api.progressFull()) {
-            this.next();
-        } else {
-            this.props.questionsOverHandler();
-        }
+        this.setState({...this.state, isLoading: true});
+        this.api.addAnswer(value).then(() => {
+            this.api.progressFull().then((isFull) => {
+                if (!isFull) {
+                    this.next();
+                } else {
+                    this.props.questionsOverHandler();
+                }
+            })
+        });
     }
 
-    wrapQuestionResponse(promise) {
-        this.wrapResponse(promise, (question) => {
+    async wrapQuestionResponse(promise) {
+        await this.wrapResponse(promise, (question) => {
             this.setState({...this.state, isLoading: false, question: question})
         });
     }
 
-    wrapResponse(promise, callback) {
-        promise.then(callback).catch(error => {
+    async wrapResponse(promise, callback) {
+        await promise.then(callback).catch(error => {
             let reason = 'Произошла ошибка во время загрузки.';
-            if (error.response.status === 403) {
-                reason = 'Отказано в доступе.';
+            if (error.response) {
+                console.error(error.response.data.detail);
+                if (error.response.status === 403) {
+                    reason = 'Отказано в доступе.';
+                }
             }
-            this.setState({...this.state, isLoading: false, error: reason});
-            console.error(error.response.data.detail);
             console.error(error);
+            this.setState({...this.state, isLoading: false, error: reason});
+
         });
     }
 

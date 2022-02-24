@@ -11,26 +11,26 @@ export default class ProgressStorage {
         // console.log('Storage', localStorage.getItem(this.storageName))
     }
 
-    resultKey() {
+    async resultKey() {
         return this._getStorageData().resultKey;
     }
 
-    clear() {
+    async clear() {
         this._initLocalStorage();
     }
 
-    addAnswer(answer) {
+    async addAnswer(answer) {
         const answers = this._getStorageData().answers;
         answers[answer.questionId] = answer.value;
         this._updateField('answers', answers);
         // console.log('Storage: answer added', answers);
     }
 
-    getAnswers() {
+    async getAnswers() {
         return this._getStorageData().answers;
     }
 
-    getLastAnswer() {
+    async getLastAnswer() {
         const answers = this._getStorageData().answers;
         const keys = Object.keys(answers);
         const lastId = keys[keys.length - 1];
@@ -38,11 +38,11 @@ export default class ProgressStorage {
         return Answer.createImmutable(lastId, lastValue);
     }
 
-    getLength() {
+    async getLength() {
         return Object.keys(this._getStorageData().answers).length;
     }
 
-    getStatus() {
+    async getStatus() {
         const data = this._getStorageData();
         if (data.resultKey) {
             return STATUS_FINISHED;
@@ -53,7 +53,7 @@ export default class ProgressStorage {
         }
     }
 
-    setFinished(key) {
+    async setFinished(key) {
         this._updateField('resultKey', key);
     }
 

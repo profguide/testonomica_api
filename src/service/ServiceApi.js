@@ -1,6 +1,6 @@
 import {HOST} from "../const";
 import axios from "axios";
-import ProgressStorage from "./storage/ProgressStorage";
+// import ProgressStorage from "./storage/ProgressStorage";
 import QuestionResponseHydrator from "./types/QuestionResponseHydrator";
 import Answer from "./types/Answer";
 import Order from "./types/Order";
@@ -14,14 +14,25 @@ import Order from "./types/Order";
  *  token state вынести в синглтон. или лучше Redux
  */
 export default class ServiceApi {
-    constructor(testId, host, token) {
+    constructor(storage, testId, host, token) {
         if (!testId) {
             throw new Error('testId must be defined.');
         }
         this.testId = testId;
         this.host = host ?? HOST;
         this.token = token;
-        this.storage = new ProgressStorage(testId);
+        this.storage = storage;
+        //
+        // this.storage.getAnswers().then(collection => {
+        //     collection.forEach((doc) => {
+        //         console.log(doc.id)
+        //         console.log(doc.data())
+        //     });
+        // })
+
+
+        //
+
         this.test = null; // loaded brief about test
         this.question = null; // loaded question (current question)
     }
@@ -91,30 +102,33 @@ export default class ServiceApi {
         return this.storage.getStatus();
     }
 
-    progressFull() {
-        return this.test.length === this.storage.getLength();
+    async progressFull() {
+        return this.test.length === await this.storage.getLength();
     }
 
-    saveResult() {
+    async saveResult() {
         console.log('Saving...');
-        return axios(this.tokenizedRequest({
-            method: 'post',
-            url: this.buildUrl(`/save/${this.testId}/`),
-            data: {
-                progress: this.storage.getAnswers(),
-            }
-        })).then(response => {
-            this.token = response.headers['x-token'];
-            const key = response.data.key;
-            this.storage.setFinished(key);
-            return key;
-        });
+        return this.storage.getAnswers().then(answers => {
+            return axios(this.tokenizedRequest({
+                method: 'post',
+                url: this.buildUrl(`/save/${this.testId}/`),
+                data: {
+                    progress: answers,
+                }
+            })).then(response => {
+                this.token = response.headers['x-token'];
+                const key = response.data.key;
+                this.storage.setFinished(key);
+                return key;
+            });
+        })
     }
 
-    result() {
+    async result() {
+        const key = await this.storage.resultKey();
         return axios(this.tokenizedRequest({
             method: 'get',
-            url: this.buildUrl(`/result/${this.testId}/?key=${this.storage.resultKey()}`)
+            url: this.buildUrl(`/result/${this.testId}/?key=${key}`)
         })).then(response => {
             this.token = response.headers['x-token'];
             return response;
@@ -125,8 +139,8 @@ export default class ServiceApi {
         return this.storage.resultKey();
     }
 
-    clear() {
-        this.storage.clear();
+    async clear() {
+        return await this.storage.clear();
     }
 
     /**
@@ -147,12 +161,12 @@ export default class ServiceApi {
         })
     }
 
-    next() {
+    async next() {
         let id;
         if (this.question) {
             id = this.question.id;
         } else {
-            const answer = this.storage.getLastAnswer();
+            const answer = await this.storage.getLastAnswer();
             id = answer.questionId;
         }
         return axios(this.tokenizedRequest({
@@ -179,15 +193,11 @@ export default class ServiceApi {
     }
 
     addAnswer(value) {
-        this.storage.addAnswer(Answer.createImmutable(this.question.id, value))
+        return this.storage.addAnswer(Answer.createImmutable(this.question.id, value));
     }
 
     buildUrl(path) {
         return this.host + '/tests/api/v1' + path;
-    }
-
-    getToken() {
-        return this.token;
     }
 
     tokenizedRequest(data) {

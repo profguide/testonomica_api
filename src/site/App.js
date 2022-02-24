@@ -18,6 +18,7 @@ export default (props) => {
         isLoading: true,
         error: null,
         test: null,
+        status: null,
         screen: null,
         quizTask: null,
         mainDivRef: null,
@@ -32,12 +33,14 @@ export default (props) => {
     const wrapRequest = (promise, callback) => {
         promise.then(callback).catch(error => {
             let reason = 'Произошла ошибка во время загрузки.';
-            if (error.response.status === 403) {
-                reason = 'Отказано в доступе.';
+            console.error(error);
+            if (error.response) {
+                console.error(error.response.data.detail);
+                if (error.response.status === 403) {
+                    reason = 'Отказано в доступе.';
+                }
             }
             changeState({...state, isLoading: false, error: reason});
-            console.error(error.response.data.detail);
-            console.error(error);
         });
     }
 
@@ -68,25 +71,28 @@ export default (props) => {
         })).observe(document.body);
         // load the test and check progress
         wrapRequest(api.description(), (test) => {
-            // if test was over, but result was not save for some reason
-            if (api.progressFull() && api.progressStatus() === STATUS_IN_PROGRESS) {
-                // save result and show the conclusion.
-                wrapRequest(api.saveResult(), (key) => {
+            api.progressStatus().then(async (status) => {
+                // if test was over, but result was not save for some reason
+                const isFull = await api.progressFull();
+                if (isFull && status === STATUS_IN_PROGRESS) {
+                    // save result and show the conclusion.
+                    wrapRequest(api.saveResult(), (key) => {
+                        trigger(new CustomEvent(EVENT_LOADED));
+                        trigger(new CustomEvent(EVENT_FINISH, {detail: {key}}));
+                        changeState({...state, status, isLoading: false, test, screen: SCREEN_RESULT});
+                    })
+                } else if (status === STATUS_FINISHED && config.isShowResultAfterLoad()) {
                     trigger(new CustomEvent(EVENT_LOADED));
-                    trigger(new CustomEvent(EVENT_FINISH, {detail: {key}}));
-                    changeState({...state, isLoading: false, test: test, screen: SCREEN_RESULT});
-                })
-            } else if (api.progressStatus() === STATUS_FINISHED && config.isShowResultAfterLoad()) {
-                trigger(new CustomEvent(EVENT_LOADED));
-                changeState({...state, isLoading: false, test: test, screen: SCREEN_RESULT});
-            } else {
-                trigger(new CustomEvent(EVENT_LOADED));
-                if (test.paid) {
-                    changeState({...state, isLoading: false, test: test, screen: SCREEN_PAYMENT});
+                    changeState({...state, status, isLoading: false, test, screen: SCREEN_RESULT});
                 } else {
-                    changeState({...state, isLoading: false, test: test, screen: SCREEN_WELCOME});
+                    trigger(new CustomEvent(EVENT_LOADED));
+                    if (test.paid) {
+                        changeState({...state, status, isLoading: false, test, screen: SCREEN_PAYMENT});
+                    } else {
+                        changeState({...state, status, isLoading: false, test, screen: SCREEN_WELCOME});
+                    }
                 }
-            }
+            });
         });
     }, [])
 
@@ -113,7 +119,7 @@ export default (props) => {
                 }
                 {state.screen === SCREEN_WELCOME ?
                     <WelcomeScreen test={state.test}
-                                   status={api.progressStatus()}
+                                   status={state.status}
                                    startClickHandler={whenClickStart}
                                    restoreClickHandler={whenClickRestore}/> : null
                 }
