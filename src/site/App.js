@@ -5,6 +5,7 @@ import ResultScreen from "./screen/ResultScreen";
 import WelcomeScreen from "./screen/WelcomeScreen";
 import QuizScreen from "./screen/QuizScreen";
 import PaymentScreen from "./screen/PaymentScreen";
+import {t} from "../t";
 
 const SCREEN_WELCOME = 'welcome';
 const SCREEN_QUIZ = 'quiz';
@@ -32,12 +33,12 @@ export default (props) => {
 
     const wrapRequest = (promise, callback) => {
         promise.then(callback).catch(error => {
-            let reason = 'Произошла ошибка во время загрузки.';
+            let reason = t('Произошла ошибка во время загрузки.');
             console.error(error);
             if (error.response) {
                 console.error(error.response.data.detail);
                 if (error.response.status === 403) {
-                    reason = 'Отказано в доступе.';
+                    reason = t('Отказано в доступе.');
                 }
             }
             changeState({...state, isLoading: false, error: reason});

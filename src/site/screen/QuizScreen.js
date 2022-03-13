@@ -15,6 +15,7 @@ import FormGradient from "../form/FormGradient";
 import ProgressBar from "../form/ProgressBar";
 import Loading from "../form/Loading";
 import TimerWrapper from "../form/TimerWrapper";
+import {t} from "../../t";
 
 export default class QuizScreen extends Component {
     constructor(props) {
@@ -102,11 +103,11 @@ export default class QuizScreen extends Component {
 
     async wrapResponse(promise, callback) {
         await promise.then(callback).catch(error => {
-            let reason = 'Произошла ошибка во время загрузки.';
+            let reason = t('Произошла ошибка во время загрузки.');
             if (error.response) {
                 console.error(error.response.data.detail);
                 if (error.response.status === 403) {
-                    reason = 'Отказано в доступе.';
+                    reason = t('Отказано в доступе.');
                 }
             }
             console.error(error);
@@ -134,7 +135,7 @@ export default class QuizScreen extends Component {
             <article className={'tnc-q tnc-q__' + this.props.testId + '-' + question.id}>
                 <TimerWrapper timer={question.timer} goForwardHandler={this.goForwardHandler} key={question.id}>
                     {question.img
-                        ? <img className={'tnc-q__img'} src={question.img} alt={'Задание'}/>
+                        ? <img className={'tnc-q__img'} src={question.img} alt={t('Задание')}/>
                         : null}
                     <h2 className={'tnc-q__name'}>{question.name}</h2>
                     {question.text

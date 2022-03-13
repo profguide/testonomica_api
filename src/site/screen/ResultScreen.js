@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {t} from "../../t";
 
 export default class ResultScreen extends Component {
     constructor(props) {
@@ -20,13 +21,13 @@ export default class ResultScreen extends Component {
                 console.error(error.response.data.detail);
             }
             console.error(error);
-            this.setState({...this.state, isLoading: false, error: 'Произошла ошибка во время загрузки результата.'});
+            this.setState({...this.state, isLoading: false, error: t('Произошла ошибка во время загрузки результата.')});
         });
     }
 
     render() {
         if (this.state.isLoading) {
-            return 'Загрузка результата...';
+            return t('Загрузка результата...');
         } else if (this.state.error) {
             return this.state.error;
         }
@@ -35,14 +36,14 @@ export default class ResultScreen extends Component {
         return (
             <div className={'tnc-result'}>
                 <h1 className={'tnc-result__title'}>{this.props.test.name}</h1>
-                <h2 className={'tnc-result__subtitle'}>Ваши результаты:</h2>
+                <h2 className={'tnc-result__subtitle'}>{t('Ваши результаты')}:</h2>
                 <article className={'tnc-result__text'} dangerouslySetInnerHTML={{__html: this.state.result}}/>
-                <p><span style={{fontWeight: 'bold'}}>Постоянная ссылка на результат:</span><br/>
+                <p><span style={{fontWeight: 'bold'}}>{t('Постоянная ссылка на результат')}:</span><br/>
                     <a href={url}>{url}</a></p>
                 <button
                     onClick={this.props.restartClickHandler}
                     className={'tnc-btn tnc-result__btn-restart'}>
-                    Пройти тест заново
+                    {t('Пройти тест заново')}
                 </button>
             </div>
         )

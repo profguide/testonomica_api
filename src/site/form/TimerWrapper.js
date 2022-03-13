@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {t} from "../../t";
 
 export default class TimerWrapper extends Component {
     constructor(props) {
@@ -43,9 +44,9 @@ export default class TimerWrapper extends Component {
         if (this.state.timeOut) {
             return (
                 <div>
-                    <p>Закончилось время, отведённое на вопрос ({this.props.timer} секунд).
-                        Нажмите кнопку продолжить, когда будете готовы продолжить тест.</p>
-                    <button onClick={this.props.goForwardHandler} className="btn btn-primary">Продолжить</button>
+                    <p>{t('Закончилось время, отведённое на вопрос')} ({this.props.timer} {t('секунд')}).
+                     {t('Нажмите кнопку продолжить, когда будете готовы продолжить тест.')}</p>
+                    <button onClick={this.props.goForwardHandler} className="btn btn-primary">{t('Продолжить')}</button>
                 </div>
             )
         } else {

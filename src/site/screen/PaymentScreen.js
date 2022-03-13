@@ -1,5 +1,6 @@
 import React from "react";
 import Cloudpayments from "../../payments/Cloudpayments";
+import {t} from "../../t";
 
 export default class PaymentScreen extends React.Component {
     constructor(props) {
@@ -75,9 +76,9 @@ export default class PaymentScreen extends React.Component {
 
     wrapRequest(promise, callback) {
         promise.then(callback).catch(error => {
-            let reason = 'Произошла ошибка во время загрузки.';
+            let reason = t('Произошла ошибка во время загрузки.');
             if (error.response.status === 403) {
-                reason = 'Отказано в доступе.';
+                reason = t('Отказано в доступе.');
             }
             this.setState({...this.state, isLoading: false, error: reason});
             console.error(error.response.data.detail);
@@ -106,9 +107,8 @@ export default class PaymentScreen extends React.Component {
         if (!this.state.isOpened) {
             return (
                 <div className="container">
-                    <div>Требуется оплата.</div>
-                    <button className={'btn btn-primary'} onClick={this.initPaymentWidget}>Нажмите, чтобы перейти к
-                        оплате
+                    <div>{t('Требуется оплата.')}</div>
+                    <button className={'btn btn-primary'} onClick={this.initPaymentWidget}>{t('Нажмите, чтобы перейти к оплате')}
                     </button>
                 </div>
             )

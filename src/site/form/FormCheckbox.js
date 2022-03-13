@@ -42,7 +42,7 @@ export default class FormCheckbox extends Component {
                                    style={{maxHeight: 100 + 'px'}}
                                    onClick={() => this.props.selectionHandler(option.value)}
                                    className={'tnc-q-form__option-img ' + + (this.state.values.includes(option.value) ? 'tnc-q-form__option-img_selected' : '')}
-                                   alt={'Изображение'}/>
+                                   alt={'Task'}/>
                             : <button
                                 disabled={this.props.isLoading}
                                 onClick={() => this.props.selectionHandler(option.value)}

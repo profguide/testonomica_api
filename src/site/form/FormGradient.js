@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import NavigationButtons from "./NavigationButtons";
+import {t} from "../../t";
 
 /**
  * Первый и последний варианты ответа - это крайности,
@@ -13,9 +14,9 @@ export default class FormGradient extends Component {
 
     name(n) {
         if (n === 1 || n === 3) {
-            return 'Частично описывает меня';
+            return t('Частично описывает меня');
         }
-        return 'Нейтрально';
+        return t('Нейтрально');
     }
 
     options() {
@@ -47,9 +48,9 @@ export default class FormGradient extends Component {
                     {this.options()}
                 </div>
                 <div className="tnc-form-gradient__values">
-                    <div className="tnc-form-gradient__values-item">Точно описывает меня</div>
-                    <div className="tnc-form-gradient__values-item">Нейтрально</div>
-                    <div className="tnc-form-gradient__values-item">Точно описывает меня</div>
+                    <div className="tnc-form-gradient__values-item">{t('Точно описывает меня')}</div>
+                    <div className="tnc-form-gradient__values-item">{t('Нейтрально')}</div>
+                    <div className="tnc-form-gradient__values-item">{t('Точно описывает меня')}</div>
                 </div>
                 <NavigationButtons
                     isLoading={this.props.isLoading}
