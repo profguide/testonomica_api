@@ -1,3 +1,5 @@
+import {detectLocale} from "./util";
+
 const lines = {}
 lines['минут'] = 'minutes';
 lines['Начать'] = 'Start';
@@ -21,10 +23,8 @@ lines['Закончилось время, отведённое на вопрос
 lines['секунд'] = 'seconds';
 lines['Нажмите кнопку продолжить, когда будете готовы продолжить тест.'] = 'Click the Continue button when you are ready to continue with the test.';
 
-const lang = document.documentElement.lang;
-
 export function t(str) {
-    if (lang === 'en') {
+    if (detectLocale() === 'en') {
         const line = lines[str];
         if (line) {
             return line;

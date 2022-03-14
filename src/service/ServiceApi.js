@@ -4,6 +4,7 @@ import axios from "axios";
 import QuestionResponseHydrator from "./types/QuestionResponseHydrator";
 import Answer from "./types/Answer";
 import Order from "./types/Order";
+import {detectLocale} from "../util";
 
 /**
  * Low-level API: requests, storing data
@@ -19,7 +20,7 @@ export default class ServiceApi {
             throw new Error('testId must be defined.');
         }
         this.testId = testId;
-        this.host = host ?? HOST;
+        this.host = (host ?? HOST) + (detectLocale() === 'en' ? '/en' : '');
         this.token = token;
         this.storage = storage;
         //
@@ -84,7 +85,7 @@ export default class ServiceApi {
     description() {
         return axios({
             method: 'get',
-            url: this.buildUrl('/info/' + this.testId + '/'),
+            url: this.buildUrl(`/info/${this.testId}/`),
             responseType: 'json',
         }).then(response => {
             this.test = {
@@ -197,7 +198,7 @@ export default class ServiceApi {
     }
 
     buildUrl(path) {
-        return this.host + '/tests/api/v1' + path;
+        return `${this.host}/tests/api/v1${path}`;
     }
 
     tokenizedRequest(data) {
