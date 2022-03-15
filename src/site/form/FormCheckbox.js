@@ -10,10 +10,11 @@ export default class FormCheckbox extends Component {
             enabledForward: false,
         }
         this.options = this.options.bind(this);
+        this.clickHandler = this.clickHandler.bind(this);
         this.goForwardHandler = this.goForwardHandler.bind(this);
     }
 
-    clickHandler(value, index) {
+    clickHandler(value) {
         let values = this.state.values;
         const key = values.indexOf(value);
         if (key > -1) {
@@ -24,8 +25,10 @@ export default class FormCheckbox extends Component {
             values.push(value);
         }
 
-        const enabledForward = values.length === this.props.count;
+        const enabledForward = values.length === parseInt(this.props.count);
         this.setState({...this.state, values, enabledForward});
+
+        // this.props.selectionHandler(option.value)
     }
 
     goForwardHandler() {
@@ -40,12 +43,12 @@ export default class FormCheckbox extends Component {
                         option.img
                             ? <img src={option.img}
                                    style={{maxHeight: 100 + 'px'}}
-                                   onClick={() => this.props.selectionHandler(option.value)}
-                                   className={'tnc-q-form__option-img ' + + (this.state.values.includes(option.value) ? 'tnc-q-form__option-img_selected' : '')}
+                                   onClick={() => this.clickHandler(option.value, i)}
+                                   className={'tnc-q-form__option-img ' + (this.state.values.includes(option.value) ? 'tnc-q-form__option-img_selected' : '')}
                                    alt={'Task'}/>
                             : <button
                                 disabled={this.props.isLoading}
-                                onClick={() => this.props.selectionHandler(option.value)}
+                                onClick={() => this.clickHandler(option.value, i)}
                                 className={'tnc-btn tnc-q-form__option-btn ' + (this.state.values.includes(option.value) ? 'tnc-q-form__option-btn_selected' : '')}>
                                 {option.text}</button>
                     }

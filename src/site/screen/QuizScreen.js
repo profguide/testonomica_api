@@ -144,6 +144,7 @@ export default class QuizScreen extends Component {
 
                     <Form key={question.id}
                           options={options}
+                          count={question.count}
                           isLoading={this.state.isLoading}
                           enabledBack={enabledBack}
                           enabledForward={enabledForward}

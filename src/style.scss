@@ -189,6 +189,12 @@
     &:hover {
       opacity: 0.5;
     }
+
+    &_selected {
+      //background: gold;
+      background: #004cff4d;
+      color: #fff;
+    }
   }
 
   &__option-btn {
