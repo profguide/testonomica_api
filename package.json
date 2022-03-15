@@ -1,6 +1,6 @@
 {
   "name": "testonomica_api",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "playing test",
   "main": "index.js",
   "scripts": {
