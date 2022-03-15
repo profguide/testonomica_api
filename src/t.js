@@ -11,6 +11,7 @@ lines['Произошла ошибка во время загрузки резу
 lines['Отказано в доступе.'] = 'Access denied.';
 lines['Задание'] = 'The task';
 lines['Загрузка результата...'] = 'Loading result...';
+lines['Результат обрабатывается...'] = 'The result is processed...';
 lines['Ваши результаты'] = 'Your results';
 lines['Постоянная ссылка на результат'] = 'Permanent link to the result';
 lines['Пройти тест заново'] = 'Take the test again';

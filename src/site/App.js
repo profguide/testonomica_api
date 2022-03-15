@@ -112,12 +112,18 @@ export default (props) => {
         return null;
     }
 
+    const resultScreen = () => {
+        if (config.isDisplayReport()) {
+            return <ResultScreen api={api} test={state.test} restartClickHandler={whenClickStart}/>
+        }
+        return <div>{t('Результат обрабатывается...')}</div>;
+    }
+
     return (
         <div id={'tnc'} className={'tnc'}>
             <div className={'container'}>
-                {state.screen === SCREEN_RESULT ?
-                    <ResultScreen api={api} test={state.test} restartClickHandler={whenClickStart}/> : null
-                }
+                {state.screen === SCREEN_RESULT && resultScreen()}
+
                 {state.screen === SCREEN_WELCOME ?
                     <WelcomeScreen test={state.test}
                                    status={state.status}
