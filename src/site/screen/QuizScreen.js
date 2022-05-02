@@ -121,7 +121,7 @@ export default class QuizScreen extends Component {
             return this.state.error;
         }
         if (this.state.question === null) {
-            return <Loading/>;
+            return <div className="container"><Loading/></div>;
         }
         const question = this.state.question;
         const options = question.options;
@@ -132,29 +132,35 @@ export default class QuizScreen extends Component {
         const Form = this.formTypeMap[type];
 
         return (
-            <article className={'tnc-q tnc-q__' + this.props.testId + '-' + question.id}>
-                <TimerWrapper timer={question.timer} goForwardHandler={this.goForwardHandler} key={question.id}>
-                    {question.img
-                        ? <img className={'tnc-q__img'} src={question.img} alt={t('Задание')}/>
-                        : null}
-                    <h2 className={'tnc-q__name'}>{question.name}</h2>
-                    {question.text
-                        ? <div className={'tnc-q__text'} dangerouslySetInnerHTML={{__html: question.text}}/>
-                        : null}
+            <section className='tnc-q-wrapper'>
+                <article className={'tnc-q tnc-q__' + this.props.testId + '-' + question.id}>
+                    <div className="container">
+                        <div className="tnc-q-inner">
+                            <TimerWrapper timer={question.timer} goForwardHandler={this.goForwardHandler} key={question.id}>
+                                {question.img
+                                    ? <img className={'tnc-q__img'} src={question.img} alt={t('Задание')}/>
+                                    : null}
+                                <h2 className={'tnc-q__name'}>{question.name}</h2>
+                                {question.text
+                                    ? <div className={'tnc-q__text'} dangerouslySetInnerHTML={{__html: question.text}}/>
+                                    : null}
 
-                    <Form key={question.id}
-                          options={options}
-                          count={question.count}
-                          isLoading={this.state.isLoading}
-                          enabledBack={enabledBack}
-                          enabledForward={enabledForward}
-                          selectionHandler={this.selectionHandler}
-                          goForwardHandler={this.goForwardHandler}
-                          goBackHandler={this.goBackHandler}/>
+                                <Form key={question.id}
+                                      options={options}
+                                      count={question.count}
+                                      isLoading={this.state.isLoading}
+                                      enabledBack={enabledBack}
+                                      enabledForward={enabledForward}
+                                      selectionHandler={this.selectionHandler}
+                                      goForwardHandler={this.goForwardHandler}
+                                      goBackHandler={this.goBackHandler}/>
 
-                    <ProgressBar length={question.length} number={question.number}/>
-                </TimerWrapper>
-            </article>
+                                <ProgressBar length={question.length} number={question.number}/>
+                            </TimerWrapper>
+                        </div>
+                    </div>
+                </article>
+            </section>
         );
     }
 }

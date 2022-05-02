@@ -27,24 +27,26 @@ export default class ResultScreen extends Component {
 
     render() {
         if (this.state.isLoading) {
-            return t('Загрузка результата...');
+            return <div className="container">{t('Загрузка результата...')}</div>;
         } else if (this.state.error) {
-            return this.state.error;
+            return <div className="container">{this.state.error}</div>;
         }
 
         const url = 'https://testonomica.com/tests/result/' + this.state.key + '/';
         return (
             <div className={'tnc-result'}>
-                <h1 className={'tnc-result__title'}>{this.props.test.name}</h1>
-                <h2 className={'tnc-result__subtitle'}>{t('Ваши результаты')}:</h2>
-                <article className={'tnc-result__text'} dangerouslySetInnerHTML={{__html: this.state.result}}/>
-                <p><span style={{fontWeight: 'bold'}}>{t('Постоянная ссылка на результат')}:</span><br/>
-                    <a href={url}>{url}</a></p>
-                <button
-                    onClick={this.props.restartClickHandler}
-                    className={'tnc-btn tnc-result__btn-restart'}>
-                    {t('Пройти тест заново')}
-                </button>
+                <div className="container">
+                    <h1 className={'tnc-result__title'}>{this.props.test.name}</h1>
+                    <h2 className={'tnc-result__subtitle'}>{t('Ваши результаты')}:</h2>
+                    <article className={'tnc-result__text'} dangerouslySetInnerHTML={{__html: this.state.result}}/>
+                    <p><span style={{fontWeight: 'bold'}}>{t('Постоянная ссылка на результат')}:</span><br/>
+                        <a href={url}>{url}</a></p>
+                    <button
+                        onClick={this.props.restartClickHandler}
+                        className={'tnc-btn tnc-result__btn-restart'}>
+                        {t('Пройти тест заново')}
+                    </button>
+                </div>
             </div>
         )
     }

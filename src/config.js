@@ -1,4 +1,5 @@
 export default class Config {
+    // #skipWelcome/autoStart/displayWelcome
     #displayReport;
     #showResultAfterLoad;
 

@@ -1,8 +1,23 @@
+@font-face {
+  font-family: "Cera Round Pro";
+  src: url("./../fonts/CeraRoundProLight.woff2") format("woff2");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "Cera Round Pro";
+  src: url("./../fonts/CeraRoundProMedium.woff2") format("woff2");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Cera Round Pro";
+  src: url("./../fonts/CeraRoundProBold.woff2") format("woff2");
+  font-weight: bold;
+}
+
 #testonomica_app {
-  position: relative;
-  //min-height: 400px;
-  margin: auto;
-  background: #fff;
+  padding: 15px 0; // на профгиде надо иметь отступ. а иначе как? не понимаю.
 }
 
 .tnc {
@@ -36,6 +51,15 @@
 }
 
 .tnc-welcome {
+  //padding: 30px 0;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: scroll;
+
   &__title {
     margin-bottom: 0.8rem;
   }
@@ -49,7 +73,7 @@
 
     &:before {
       content: '';
-      background: url(/public/images/sys/clock.svg);
+      background: url(./../images/sys/clock.svg);
       background-size: cover;
       height: 15px;
       width: 15px;
@@ -95,9 +119,14 @@
   height: 100%;
 
   &__name {
-    font-size: 22px;
-    font-weight: 500;
+    font-family: 'Cera Round Pro';
+    font-weight: 400;
+    font-size: 24px;
     margin: 0 0 1rem 0;
+
+    @media (max-width: 768px) {
+      font-size: 22px;
+    }
   }
 
   &__text {
@@ -198,10 +227,23 @@
   }
 
   &__option-btn {
-    font-size: 18px;
-    border: 1px solid #8080801a;
-    background: #fdfdfd;
+    //font-size: 17px;
+    padding: 15px;
+    //font-weight: 600;
+    border: 2px solid #E8E8E8;
+    border-radius: 10px;
+    background: #fff;
     text-align: left;
+
+    font-family: 'Cera Round Pro';
+    font-weight: bold;
+    font-size: 18px;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      text-align: center;
+      font-size: 16px;
+    }
 
     &_selected {
       //background: gold;
@@ -320,6 +362,7 @@
       .tnc-q-form__option-btn {
         border-color: #e9ff00 !important;
       }
+
       //&:before {
       //  content: '';
       //  z-index: -1;
@@ -496,21 +539,24 @@
 .tnc-q-progress-bar {
   display: flex;
   align-items: center;
-  gap: 15px;
 
   &__counters {
     color: #697177;
     font-size: 15px;
+    margin-right: 15px;
   }
 
   &__line-wrapper {
+    background: #E7F6FD;
+    border-radius: 10px;
     width: 100%;
-    height: 15px;
+    height: 13px;
   }
 
   &__line {
-    background: #477be43d;
-    height: 15px;
+    background: #0085FF;
+    border-radius: 10px;
+    height: 13px;
   }
 }
 
@@ -528,5 +574,134 @@
   }
 
   &__btn-restart {
+  }
+}
+
+// >> персанализированные стили
+// todo передавать в виджет парметр fullscreen или нет. По умолчанию да.
+/**
+варианты размещения:
+1. полноэкранный размер: вспупление, тест, результат (виджет профгид)
+2. вступление не полноэкранное, а прохождение полноэкранное.
+ */
+
+
+// стиль с кактусом
+// с fixed засада.
+// с большим трудом удалось сделать временное решение.
+// то не прокручивается, то не растягивается, то шапка улетает вверх: самое трудное поддерживать одновременно два режим: виджет и не виджет.
+// есть два варианта: 1. на тестономике тоже перейти на виджет. 2. на профгиде отказаться от виджета и подключать напрямую - как на тестономике.
+// сейчас второе решение кажется лучше - потому что на профгиде у 20% пользователей на прогружается виджет.
+// вопрос так и не решен.
+.style-nrvs {
+  .tnc-q-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: initial;
+
+    overflow-y: scroll;
+
+    background: #fff;
+  }
+
+  .tnc-q-inner {
+    padding: 15px 0;
+  }
+
+  @media (max-width: 768px) {
+    .tnc-q-inner {
+      padding-top: 140px;
+
+      &:before {
+        content: '';
+        position: absolute;
+        top: -30px;
+        left: 0;
+        right: 0;
+        height: 200px;
+        background-image: url(./../images/nrvs/plant_sm_1.png);
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
+
+      //.container {
+      &:after {
+        content: '';
+        display: block;
+        height: 100px;
+        width: 100%;
+        background-image: url(./../images/nrvs/pencil_sm_1.png);
+        background-size: 100px;
+        background-repeat: no-repeat;
+        background-position-x: right;
+      }
+    }
+
+    .tnc-q__name {
+      font-family: 'Cera Round Pro';
+      font-weight: 400;
+      font-size: 22px;
+    }
+
+    .tnc-q-form__option-btn {
+      font-family: 'Cera Round Pro';
+      font-weight: bold;
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .tnc-q {
+      background: #fff;
+      height: 100%;
+      min-height: 100%;
+
+      .container {
+        //background: aquamarine;
+        display: table;
+        width: 100%;
+        height: 100%;
+
+        max-width: 950px;
+        margin-left: 420px;
+
+        &:before {
+          content: '';
+          position: fixed;
+          z-index: 1;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          width: 380px;
+          display: block;
+          background-color: #E7F6FD;
+          background-image: url(./../images/nrvs/proc_back_1_lg.png);
+          background-position-y: center;
+          background-repeat: no-repeat;
+        }
+      }
+    }
+
+    .tnc-q-inner {
+      display: table-cell;
+      vertical-align: middle;
+      height: 100%;
+      width: 100%;
+    }
+
+    .tnc-q__name {
+      font-family: 'Cera Round Pro';
+      font-weight: 400;
+      font-size: 24px;
+    }
+
+    .tnc-q-form__option-btn {
+      font-family: 'Cera Round Pro';
+      font-weight: bold;
+      font-size: 18px;
+    }
   }
 }

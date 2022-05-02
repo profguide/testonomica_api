@@ -70,6 +70,11 @@ export default (props) => {
         (new ResizeObserver(e => {
             trigger(new CustomEvent(EVENT_RESIZE, {detail: e}));
         })).observe(document.body);
+        // setInterval(function () {
+        //     const container = document.getElementById('testonomica_app');
+        //     trigger(new CustomEvent(EVENT_RESIZE, {detail: {height: container.offsetHeight}}));
+        // }, 500);
+
         // load the test and check progress
         wrapRequest(api.description(), (test) => {
             api.progressStatus().then(async (status) => {
@@ -116,27 +121,25 @@ export default (props) => {
         if (config.isDisplayReport()) {
             return <ResultScreen api={api} test={state.test} restartClickHandler={whenClickStart}/>
         }
-        return <div>{t('Результат обрабатывается...')}</div>;
+        return <div className="container">{t('Результат обрабатывается...')}</div>;
     }
 
     return (
-        <div id={'tnc'} className={'tnc'}>
-            <div className={'container'}>
-                {state.screen === SCREEN_RESULT && resultScreen()}
+        <div id={'tnc'} className={'tnc style-nrvs'}>
+            {state.screen === SCREEN_RESULT && resultScreen()}
 
-                {state.screen === SCREEN_WELCOME ?
-                    <WelcomeScreen test={state.test}
-                                   status={state.status}
-                                   startClickHandler={whenClickStart}
-                                   restoreClickHandler={whenClickRestore}/> : null
-                }
-                {state.screen === SCREEN_QUIZ ?
-                    <QuizScreen testId={api.testId}
-                                api={api}
-                                questionsOverHandler={whenQuestionsOver}
-                                task={state.quizTask}/> : null
-                }
-            </div>
+            {state.screen === SCREEN_WELCOME ?
+                <WelcomeScreen test={state.test}
+                               status={state.status}
+                               startClickHandler={whenClickStart}
+                               restoreClickHandler={whenClickRestore}/> : null
+            }
+            {state.screen === SCREEN_QUIZ ?
+                <QuizScreen testId={api.testId}
+                            api={api}
+                            questionsOverHandler={whenQuestionsOver}
+                            task={state.quizTask}/> : null
+            }
         </div>
     )
 }
