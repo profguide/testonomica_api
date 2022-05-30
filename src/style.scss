@@ -16,10 +16,6 @@
   font-weight: bold;
 }
 
-#testonomica_app {
-  padding: 15px 0; // на профгиде надо иметь отступ. а иначе как? не понимаю.
-}
-
 .tnc {
   &-btn {
     padding: 7px 15px;
@@ -53,12 +49,12 @@
 .tnc-welcome {
   //padding: 30px 0;
 
-  position: fixed;
+  //position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  overflow-y: scroll;
+  //overflow-y: scroll;
 
   &__title {
     margin-bottom: 0.8rem;
@@ -577,8 +573,10 @@
   }
 }
 
-// стиль с кактусом
-.style-nrvs {
+// Style mods
+// e.g. <div id="testonomica_app" class="tnc-office" data-test="102">
+
+.tnc-office {
   .tnc-q-wrapper {
     position: fixed;
     top: 0;
@@ -586,9 +584,7 @@
     right: 0;
     bottom: 0;
     height: initial;
-
-    overflow-y: scroll;
-
+    overflow-y: auto;
     background: #fff;
   }
 

@@ -125,7 +125,7 @@ export default (props) => {
     }
 
     return (
-        <div id={'tnc'} className={'tnc style-nrvs'}>
+        <div id={'tnc'} className={'tnc'}>
             {state.screen === SCREEN_RESULT && resultScreen()}
 
             {state.screen === SCREEN_WELCOME ?
