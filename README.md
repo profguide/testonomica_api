@@ -24,6 +24,16 @@ library needed to be connected locally or via cross-domain access.
         storage = new ProgressFirebaseStorage(config.getTestId(), sid);
     }
 
+# Кастомный стартовый экран
+
+- установить `data-start-screen` со значением `live`
+- Разместить свой Html внутрь контейнера, добавив `<div id="testonomica_buttons"></div>` для кнопок (подстановка). 
+
+      <div id="testonomica_app" data-start-screen="live">
+           <h1>Тест на профориентацию</h1>
+           <div id="testonomica_buttons"></div>
+      </div>
+
 # Developing
 
 In API package:

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {QUIZ_TASK_RESTORE, QUIZ_TASK_START, STATUS_FINISHED, STATUS_IN_PROGRESS} from "../const";
-import {EVENT_FINISH, EVENT_LOADED, EVENT_RESIZE} from "../events";
+import {QUIZ_TASK_RESTORE, QUIZ_TASK_START, START_SCREEN_NONE, STATUS_FINISHED, STATUS_IN_PROGRESS} from "../const";
+import {EVENT_FINISH, EVENT_LOADED} from "../events";
 import ResultScreen from "./screen/ResultScreen";
 import WelcomeScreen from "./screen/WelcomeScreen";
 import QuizScreen from "./screen/QuizScreen";
@@ -14,7 +14,13 @@ const SCREEN_PAYMENT = 'payment';
 
 export default (props) => {
     const api = props.api;
+
+    // Config
     const config = props.config;
+
+    // Изначальное содержимое тега
+    const content = props.content;
+
     const [state, changeState] = useState({
         isLoading: true,
         error: null,
@@ -67,13 +73,9 @@ export default (props) => {
 
     // ComponentDidMount
     useEffect(() => {
-        (new ResizeObserver(e => {
-            trigger(new CustomEvent(EVENT_RESIZE, {detail: e}));
-        })).observe(document.body);
-        // setInterval(function () {
-        //     const container = document.getElementById('testonomica_app');
-        //     trigger(new CustomEvent(EVENT_RESIZE, {detail: {height: container.offsetHeight}}));
-        // }, 500);
+        // (new ResizeObserver(e => {
+        //     trigger(new CustomEvent(EVENT_RESIZE, {detail: e}));
+        // })).observe(document.body);
 
         // load the test and check progress
         wrapRequest(api.description(), (test) => {
@@ -131,6 +133,8 @@ export default (props) => {
             {state.screen === SCREEN_WELCOME ?
                 <WelcomeScreen test={state.test}
                                status={state.status}
+                               startScreenConfig={config.getStartScreen()}
+                               content={content}
                                startClickHandler={whenClickStart}
                                restoreClickHandler={whenClickRestore}/> : null
             }

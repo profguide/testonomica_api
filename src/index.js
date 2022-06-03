@@ -15,7 +15,8 @@ export class Testonomica {
     }
 
     createApp(tag, config) {
-        ReactDOM.render(<App api={this.api} config={config} dispatcher={this.dispatcher}/>, tag);
+        const content = tag.innerHTML;
+        ReactDOM.render(<App api={this.api} config={config} content={content} dispatcher={this.dispatcher}/>, tag);
     }
 
     addEventListener(name, callback) {

@@ -1,4 +1,4 @@
-import {INIT_AUTO, INIT_MANUAL, START_SCREEN_API, START_SCREEN_LIVE, START_SCREEN_NONE} from "./const";
+import {INIT_AUTO, INIT_MANUAL, START_SCREEN_API, START_SCREEN_LIVE} from "./const";
 
 export default class Config {
     #testId;
@@ -58,6 +58,10 @@ export default class Config {
         return this.#showResultAfterLoad;
     }
 
+    getStartScreen() {
+        return this.#startScreen;
+    }
+
     static confTestId(props) {
         return Config.textValue('testId', props['testId']);
     }
@@ -78,12 +82,12 @@ export default class Config {
         return Config.textValue(
             'startScreen',
             props['startScreen'],
-            [START_SCREEN_NONE, START_SCREEN_API, START_SCREEN_LIVE],
+            [START_SCREEN_API, START_SCREEN_LIVE], // START_SCREEN_NONE
             START_SCREEN_API);
     }
 
     static confDisplayReport(props) {
-        if (!props.hasOwnProperty('displayReport')) {
+        if (props.hasOwnProperty('displayReport')) {
             return Config.isTrue(props.displayReport);
         } else {
             return true;
