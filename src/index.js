@@ -14,6 +14,10 @@ export class Testonomica {
         this.dispatcher = new TncEventDispatcher();
     }
 
+    status() {
+        return this.api.progressStatus();
+    }
+
     createApp(tag, config) {
         const content = tag.innerHTML;
         ReactDOM.render(<App api={this.api} config={config} content={content} dispatcher={this.dispatcher}/>, tag);

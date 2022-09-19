@@ -1,9 +1,10 @@
 export const INIT_AUTO = 'auto';
 export const INIT_MANUAL = 'manual';
 
-export const START_SCREEN_NONE = 'none';
 export const START_SCREEN_API = 'api';
 export const START_SCREEN_LIVE = 'live';
+export const START_SCREEN_START = 'start';
+export const START_SCREEN_RESTORE = 'restore';
 
 export const STATUS_NONE = 0;
 export const STATUS_IN_PROGRESS = 1;

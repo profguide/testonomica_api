@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {QUIZ_TASK_RESTORE, QUIZ_TASK_START, START_SCREEN_NONE, STATUS_FINISHED, STATUS_IN_PROGRESS} from "../const";
+import {
+    QUIZ_TASK_RESTORE,
+    QUIZ_TASK_START,
+    START_SCREEN_RESTORE,
+    START_SCREEN_START,
+    STATUS_FINISHED,
+    STATUS_IN_PROGRESS
+} from "../const";
 import {EVENT_FINISH, EVENT_LOADED} from "../events";
 import ResultScreen from "./screen/ResultScreen";
 import WelcomeScreen from "./screen/WelcomeScreen";
@@ -79,28 +86,36 @@ export default (props) => {
 
         // load the test and check progress
         wrapRequest(api.description(), (test) => {
-            api.progressStatus().then(async (status) => {
-                // if test was over, but result was not save for some reason
-                const isFull = await api.progressFull();
-                if (isFull && status === STATUS_IN_PROGRESS) {
-                    // save result and show the conclusion.
-                    wrapRequest(api.saveResult(), (key) => {
+            if (config.startScreen === START_SCREEN_RESTORE) {
+                trigger(new CustomEvent(EVENT_LOADED));
+                changeState({...state, test, screen: SCREEN_QUIZ, isLoading: false, quizTask: QUIZ_TASK_RESTORE});
+            } else if (config.startScreen === START_SCREEN_START) {
+                trigger(new CustomEvent(EVENT_LOADED));
+                changeState({...state, test, screen: SCREEN_QUIZ, isLoading: false, quizTask: QUIZ_TASK_START});
+            } else { // welcome-screen включен
+                api.progressStatus().then(async (status) => {
+                    // if test was over, but result was not save for some reason
+                    const isFull = await api.progressFull();
+                    if (isFull && status === STATUS_IN_PROGRESS) {
+                        // save result and show the conclusion.
+                        wrapRequest(api.saveResult(), (key) => {
+                            trigger(new CustomEvent(EVENT_LOADED));
+                            trigger(new CustomEvent(EVENT_FINISH, {detail: {key}}));
+                            changeState({...state, status, isLoading: false, test, screen: SCREEN_RESULT});
+                        });
+                    } else if (status === STATUS_FINISHED && config.isShowResultAfterLoad()) {
                         trigger(new CustomEvent(EVENT_LOADED));
-                        trigger(new CustomEvent(EVENT_FINISH, {detail: {key}}));
                         changeState({...state, status, isLoading: false, test, screen: SCREEN_RESULT});
-                    })
-                } else if (status === STATUS_FINISHED && config.isShowResultAfterLoad()) {
-                    trigger(new CustomEvent(EVENT_LOADED));
-                    changeState({...state, status, isLoading: false, test, screen: SCREEN_RESULT});
-                } else {
-                    trigger(new CustomEvent(EVENT_LOADED));
-                    if (test.paid) {
-                        changeState({...state, status, isLoading: false, test, screen: SCREEN_PAYMENT});
                     } else {
-                        changeState({...state, status, isLoading: false, test, screen: SCREEN_WELCOME});
+                        trigger(new CustomEvent(EVENT_LOADED));
+                        if (test.paid) {
+                            changeState({...state, status, isLoading: false, test, screen: SCREEN_PAYMENT});
+                        } else {
+                            changeState({...state, status, isLoading: false, test, screen: SCREEN_WELCOME});
+                        }
                     }
-                }
-            });
+                });
+            }
         });
     }, [])
 
@@ -141,6 +156,7 @@ export default (props) => {
             {state.screen === SCREEN_QUIZ ?
                 <QuizScreen testId={api.testId}
                             api={api}
+                            dispatcher={props.dispatcher}
                             questionsOverHandler={whenQuestionsOver}
                             task={state.quizTask}/> : null
             }

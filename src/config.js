@@ -1,10 +1,17 @@
-import {INIT_AUTO, INIT_MANUAL, START_SCREEN_API, START_SCREEN_LIVE} from "./const";
+import {
+    INIT_AUTO,
+    INIT_MANUAL,
+    START_SCREEN_API,
+    START_SCREEN_LIVE,
+    START_SCREEN_RESTORE,
+    START_SCREEN_START
+} from "./const";
 
 export default class Config {
-    #testId;
-    #host;
-    #token;
-    #init;
+    testId;
+    host;
+    token;
+    init;
 
     /**
      * Start screen parameter
@@ -12,54 +19,54 @@ export default class Config {
      * api - show screen from API
      * live - use inner content of tag and replace substrings by regular expressions, e.g. <buttons></buttons>
      */
-    #startScreen;
+    startScreen;
 
     /**
      * Whether to show result in the end
      */
-    #displayReport;
+    displayReport;
 
     /**
      * Whether to show result on page reload
      */
-    #showResultAfterLoad;
+    showResultAfterLoad;
 
     constructor(props) {
-        this.#testId = Config.confTestId(props);
-        this.#host = Config.confHost(props);
-        this.#token = Config.confToken(props);
-        this.#init = Config.confInit(props);
-        this.#startScreen = Config.confStartScreen(props);
-        this.#displayReport = Config.confDisplayReport(props);
-        this.#showResultAfterLoad = Config.confShowResultAfterLoad(props);
+        this.testId = Config.confTestId(props);
+        this.host = Config.confHost(props);
+        this.token = Config.confToken(props);
+        this.init = Config.confInit(props);
+        this.startScreen = Config.confStartScreen(props);
+        this.displayReport = Config.confDisplayReport(props);
+        this.showResultAfterLoad = Config.confShowResultAfterLoad(props);
     }
 
     getTestId() {
-        return this.#testId;
+        return this.testId;
     }
 
     getHost() {
-        return this.#host;
+        return this.host;
     }
 
     getInit() {
-        return this.#init;
+        return this.init;
     }
 
     getToken() {
-        return this.#token;
+        return this.token;
     }
 
     isDisplayReport() {
-        return this.#displayReport;
+        return this.displayReport;
     }
 
     isShowResultAfterLoad() {
-        return this.#showResultAfterLoad;
+        return this.showResultAfterLoad;
     }
 
     getStartScreen() {
-        return this.#startScreen;
+        return this.startScreen;
     }
 
     static confTestId(props) {
@@ -82,7 +89,7 @@ export default class Config {
         return Config.textValue(
             'startScreen',
             props['startScreen'],
-            [START_SCREEN_API, START_SCREEN_LIVE], // START_SCREEN_NONE
+            [START_SCREEN_API, START_SCREEN_LIVE, START_SCREEN_START, START_SCREEN_RESTORE],
             START_SCREEN_API);
     }
 

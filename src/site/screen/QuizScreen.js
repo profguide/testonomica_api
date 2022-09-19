@@ -16,7 +16,19 @@ import ProgressBar from "../form/ProgressBar";
 import Loading from "../form/Loading";
 import TimerWrapper from "../form/TimerWrapper";
 import {t} from "../../t";
+import {EVENT_QUESTION_LOAD} from "../../events";
 
+/**
+ * TODO auto
+ * 1. check url (it should be ?auto)
+ * 2. init Form with argument auto="true"
+ *
+ * or plugin-like:
+ * 1. load library on page
+ * 2. this script subscribes on question change, analize form and do action (press button)
+ *
+ * I choose the last, beacause it easier to make.
+ */
 export default class QuizScreen extends Component {
     constructor(props) {
         super(props);
@@ -40,6 +52,7 @@ export default class QuizScreen extends Component {
         this.selectionHandler = this.selectionHandler.bind(this);
         this.goForwardHandler = this.goForwardHandler.bind(this);
         this.goBackHandler = this.goBackHandler.bind(this);
+        this.trigger = this.trigger.bind(this);
     }
 
     componentDidMount() {
@@ -48,6 +61,10 @@ export default class QuizScreen extends Component {
         } else {
             this.start();
         }
+    }
+
+    trigger = (e) => {
+        this.props.dispatcher.dispatchEvent(e);
     }
 
     // The user made his choice
@@ -97,7 +114,8 @@ export default class QuizScreen extends Component {
 
     async wrapQuestionResponse(promise) {
         await this.wrapResponse(promise, (question) => {
-            this.setState({...this.state, isLoading: false, question: question})
+            this.setState({...this.state, isLoading: false, question: question});
+            this.trigger(new CustomEvent(EVENT_QUESTION_LOAD));
         });
     }
 
@@ -136,7 +154,8 @@ export default class QuizScreen extends Component {
                 <article className={'tnc-q tnc-q__' + this.props.testId + '-' + question.id}>
                     <div className="container">
                         <div className="tnc-q-inner">
-                            <TimerWrapper timer={question.timer} goForwardHandler={this.goForwardHandler} key={question.id}>
+                            <TimerWrapper timer={question.timer} goForwardHandler={this.goForwardHandler}
+                                          key={question.id}>
                                 {question.img
                                     ? <img className={'tnc-q__img'} src={question.img} alt={t('Задание')}/>
                                     : null}
