@@ -63,7 +63,7 @@ export default class QuizScreen extends Component {
         }
     }
 
-    trigger = (e) => {
+    trigger(e) {
         this.props.dispatcher.dispatchEvent(e);
     }
 

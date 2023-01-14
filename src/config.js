@@ -8,36 +8,28 @@ import {
 } from "./const";
 
 export default class Config {
-    testId;
-    host;
-    token;
-    init;
-
-    /**
-     * Start screen parameter
-     * none - skip start screen
-     * api - show screen from API
-     * live - use inner content of tag and replace substrings by regular expressions, e.g. <buttons></buttons>
-     */
-    startScreen;
-
-    /**
-     * Whether to show result in the end
-     */
-    displayReport;
-
-    /**
-     * Whether to show result on page reload
-     */
-    showResultAfterLoad;
-
     constructor(props) {
         this.testId = Config.confTestId(props);
         this.host = Config.confHost(props);
         this.token = Config.confToken(props);
         this.init = Config.confInit(props);
+
+        /**
+         * Start screen parameter
+         * none - skip start screen
+         * api - show screen from API
+         * live - use inner content of tag and replace substrings by regular expressions, e.g. <buttons></buttons>
+         */
         this.startScreen = Config.confStartScreen(props);
+
+        /**
+         * Whether to show result in the end
+         */
         this.displayReport = Config.confDisplayReport(props);
+
+        /**
+         * Whether to show result on page reload
+         */
         this.showResultAfterLoad = Config.confShowResultAfterLoad(props);
     }
 
