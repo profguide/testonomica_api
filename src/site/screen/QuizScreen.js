@@ -33,6 +33,7 @@ export default class QuizScreen extends Component {
         super(props);
 
         this.state = {
+            active: false, // to be active by event handler
             isLoading: true,
             error: null,
             question: null,
@@ -130,9 +131,8 @@ export default class QuizScreen extends Component {
 
     async wrapQuestionResponse(promise) {
         await this.wrapResponse(promise, (question) => {
-            this.setState({...this.state, isLoading: false, question: question, opacity: 0});
-            this.trigger(new CustomEvent(EVENT_QUESTION_LOAD, {detail: {number: question.number}}));
-            this.fadeIn();
+            this.setState({...this.state, isLoading: false, question: question, opacity: 0, active: false});
+            this.trigger(new CustomEvent(EVENT_QUESTION_LOAD, {detail: {number: question.number, target: this}}));
         });
     }
 
@@ -147,11 +147,18 @@ export default class QuizScreen extends Component {
             }
             console.error(error);
             this.setState({...this.state, isLoading: false, error: reason});
-
         });
     }
 
+    renderQuestion() {
+        this.setState({...this.state, active: true})
+        this.fadeIn();
+    }
+
     render() {
+        if (!this.state.active) {
+            return null;
+        }
         if (this.state.error) {
             return this.state.error;
         }

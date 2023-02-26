@@ -71,7 +71,7 @@ export default class App extends React.Component {
         this.setState({...this.state, isLoading: true});
         this.wrapRequest(this.api.saveResult(), (key) => {
             this.trigger(new CustomEvent(EVENT_FINISH, {detail: {key}}));
-            this.changeState({...this.state, isLoading: false, screen: RESULT_SCREEN});
+            this.setState({...this.state, isLoading: false, screen: RESULT_SCREEN});
         });
     }
 
@@ -180,11 +180,11 @@ export default class App extends React.Component {
 
                 {
                     this.state.screen === QUIZ_SCREEN &&
-                    <QuizScreen testId={this.api.testId}
-                                api={this.api}
-                                dispatcher={this.dispatcher}
-                                questionsOverHandler={this.whenQuestionsOver}
-                                task={this.state.quizTask}/>
+                    (this.quiz = <QuizScreen testId={this.api.testId}
+                                             api={this.api}
+                                             dispatcher={this.dispatcher}
+                                             questionsOverHandler={this.whenQuestionsOver}
+                                             task={this.state.quizTask}/>)
                 }
 
                 {

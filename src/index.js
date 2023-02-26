@@ -7,7 +7,7 @@ import Config from "./config";
 import {HOST, INIT_AUTO, START_SCREEN_API} from "./const";
 
 import './style.scss'
-import {QUESTIONS_OVER_EVENT} from "./events";
+import {EVENT_QUESTION_LOAD, QUESTIONS_OVER_EVENT} from "./events";
 
 export class Testonomica {
     constructor(storage, testId, host, token) {
@@ -21,22 +21,24 @@ export class Testonomica {
         this.app = ReactDOM.render(app, tag);
     }
 
+    // вместо setDefaultBehaviour лучше обернуть Testonomica в TestonomicaDefaultAdapter
     setDefaultBehaviour() {
 
         const that = this;
 
-        // questions are over
+        // when no questions left
         this.dispatcher.addEventListener(QUESTIONS_OVER_EVENT, function () {
-            that.app.saveProgress();
+            that.app.saveProgress(); // я думаю, что нет смысла поручать сохранение приложению, можно это сделать здесь.
+        });
+
+        // the next question is loaded
+        this.dispatcher.addEventListener(EVENT_QUESTION_LOAD, function (e) {
+            e.target.renderQuestion();
         });
     }
 
     status() {
         return this.api.progressStatus();
-    }
-
-    loading() {
-        this.app.loading();
     }
 
     savingScreen() {
