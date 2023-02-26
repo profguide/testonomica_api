@@ -53,6 +53,7 @@ export default class Config {
         return this.displayReport;
     }
 
+    // todo remove. use event handler instead - e.g. at widget setup
     isShowResultAfterLoad() {
         return this.showResultAfterLoad;
     }

@@ -7,24 +7,48 @@ import Config from "./config";
 import {HOST, INIT_AUTO, START_SCREEN_API} from "./const";
 
 import './style.scss'
+import {QUESTIONS_OVER_EVENT} from "./events";
 
 export class Testonomica {
     constructor(storage, testId, host, token) {
         this.api = new ServiceApi(storage, testId, host, token);
         this.dispatcher = new TncEventDispatcher();
+        this.setDefaultBehaviour();
+    }
+
+    createApp(tag, config) {
+        const app = <App api={this.api} config={config} content={tag.innerHTML} dispatcher={this.dispatcher}/>;
+        this.app = ReactDOM.render(app, tag);
+    }
+
+    setDefaultBehaviour() {
+
+        const that = this;
+
+        // questions are over
+        this.dispatcher.addEventListener(QUESTIONS_OVER_EVENT, function () {
+            that.app.saveProgress();
+        });
     }
 
     status() {
         return this.api.progressStatus();
     }
 
-    createApp(tag, config) {
-        const content = tag.innerHTML;
-        ReactDOM.render(<App api={this.api} config={config} content={content} dispatcher={this.dispatcher}/>, tag);
+    loading() {
+        this.app.loading();
+    }
+
+    savingScreen() {
+        this.app.savingScreen();
     }
 
     addEventListener(name, callback) {
         this.dispatcher.addEventListener(name, callback);
+    }
+
+    clearEventListeners(name) {
+        this.dispatcher.clearEventListeners(name);
     }
 }
 

@@ -1,50 +1,81 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {
-    QUIZ_TASK_RESTORE,
-    QUIZ_TASK_START,
+    RESTORE_QUIZ_COMMAND,
+    START_QUIZ_COMMAND,
     START_SCREEN_RESTORE,
     START_SCREEN_START,
-    STATUS_FINISHED,
-    STATUS_IN_PROGRESS
+    STATUS_FINISHED
 } from "../const";
-import {EVENT_FINISH, EVENT_LOADED} from "../events";
+import {EVENT_FINISH, EVENT_LOADED, QUESTIONS_OVER_EVENT} from "../events";
 import ResultScreen from "./screen/ResultScreen";
 import WelcomeScreen from "./screen/WelcomeScreen";
 import QuizScreen from "./screen/QuizScreen";
 import PaymentScreen from "./screen/PaymentScreen";
 import {t} from "../t";
 
-const SCREEN_WELCOME = 'welcome';
-const SCREEN_QUIZ = 'quiz';
-const SCREEN_RESULT = 'result';
-const SCREEN_PAYMENT = 'payment';
+const WELCOME_SCREEN = 'welcome';
+const QUIZ_SCREEN = 'quiz';
+const RESULT_SCREEN = 'result';
+const PAYMENT_SCREEN = 'payment';
 
-export default (props) => {
-    const api = props.api;
+export default class App extends React.Component {
+    constructor(props) {
+        super(props);
 
-    // Config
-    const config = props.config;
+        this.api = props.api;
 
-    // Изначальное содержимое тега
-    const content = props.content;
+        // конфиг (только значения)
+        this.config = props.config;
 
-    const [state, changeState] = useState({
-        isLoading: true,
-        error: null,
-        test: null,
-        status: null,
-        screen: null,
-        quizTask: null,
-        mainDivRef: null,
-    });
+        // Изначальное содержимое тега
+        this.content = props.content;
 
-    const trigger = (e) => {
-        if (props.dispatcher) {
-            props.dispatcher.dispatchEvent(e);
+        this.state = {
+            isLoading: true, // меня бесит эта штука. лучше её заменить на экран LOADING_SCREEN
+            error: null,
+            test: null,
+            status: null,
+            screen: null,
+            quizTask: null,
+            mainDivRef: null,
+        }
+
+        // Event dispatcher
+        this.dispatcher = props.dispatcher;
+
+        this.whenClickStart = this.whenClickStart.bind(this);
+        this.whenClickRestore = this.whenClickRestore.bind(this);
+        this.whenQuestionsOver = this.whenQuestionsOver.bind(this);
+    }
+
+    trigger(e) {
+        if (this.dispatcher) {
+            this.dispatcher.dispatchEvent(e);
         }
     }
 
-    const wrapRequest = (promise, callback) => {
+    // public
+    loading(isLoading = true) {
+        this.setState({...this.state, isLoading});
+    }
+
+    savingScreen() {
+        this.setState(state => {
+            return {...state, isLoading: true}
+        });
+        // this.setState({...this.state, isLoading: true, screen: SAVING_SCREEN});
+    }
+
+    // public: whether to save on wow or not in responsibility of client
+    saveProgress() {
+        this.setState({...this.state, isLoading: true});
+        this.wrapRequest(this.api.saveResult(), (key) => {
+            this.trigger(new CustomEvent(EVENT_FINISH, {detail: {key}}));
+            this.changeState({...this.state, isLoading: false, screen: RESULT_SCREEN});
+        });
+    }
+
+    wrapRequest(promise, callback) {
         promise.then(callback).catch(error => {
             let reason = t('Произошла ошибка во время загрузки.');
             console.error(error);
@@ -54,112 +85,112 @@ export default (props) => {
                     reason = t('Отказано в доступе.');
                 }
             }
-            changeState({...state, isLoading: false, error: reason});
+            this.setState({...this.state, isLoading: false, error: reason});
         });
     }
 
-    const whenClickRestore = () => {
-        changeState({...state, screen: SCREEN_QUIZ, quizTask: QUIZ_TASK_RESTORE});
+    whenClickStart() {
+        this.setState({...this.state, screen: QUIZ_SCREEN, quizTask: START_QUIZ_COMMAND});
     }
 
-    const whenClickStart = () => {
-        changeState({...state, screen: SCREEN_QUIZ, quizTask: QUIZ_TASK_START});
+    whenClickRestore() {
+        this.setState({...this.state, screen: QUIZ_SCREEN, quizTask: RESTORE_QUIZ_COMMAND});
     }
 
-    const whenQuestionsOver = () => {
-        changeState({...state, isLoading: true});
-        wrapRequest(api.saveResult(), (key) => {
-            trigger(new CustomEvent(EVENT_FINISH, {detail: {key}}));
-            changeState({...state, isLoading: false, screen: SCREEN_RESULT});
-        });
+    whenQuestionsOver() {
+        this.trigger(new CustomEvent(QUESTIONS_OVER_EVENT));
     }
 
-    const whenAccessed = () => {
-        changeState({...state, isLoading: false, screen: SCREEN_WELCOME});
+    whenAccessed() {
+        this.setState({...this.state, isLoading: false, screen: WELCOME_SCREEN});
     }
 
-    // ComponentDidMount
-    useEffect(() => {
-        // (new ResizeObserver(e => {
-        //     trigger(new CustomEvent(EVENT_RESIZE, {detail: e}));
-        // })).observe(document.body);
-
-        // load the test and check progress
-        wrapRequest(api.description(), (test) => {
-            if (config.startScreen === START_SCREEN_RESTORE) {
-                trigger(new CustomEvent(EVENT_LOADED));
-                changeState({...state, test, screen: SCREEN_QUIZ, isLoading: false, quizTask: QUIZ_TASK_RESTORE});
-            } else if (config.startScreen === START_SCREEN_START) {
-                trigger(new CustomEvent(EVENT_LOADED));
-                changeState({...state, test, screen: SCREEN_QUIZ, isLoading: false, quizTask: QUIZ_TASK_START});
+    componentDidMount() {
+        this.wrapRequest(this.api.description(), (test) => {
+            if (this.config.startScreen === START_SCREEN_RESTORE) {
+                this.trigger(new CustomEvent(EVENT_LOADED));
+                this.setState({
+                    ...this.state,
+                    test,
+                    screen: QUIZ_SCREEN,
+                    isLoading: false,
+                    quizTask: RESTORE_QUIZ_COMMAND
+                });
+            } else if (this.config.startScreen === START_SCREEN_START) {
+                this.trigger(new CustomEvent(EVENT_LOADED));
+                this.setState({
+                    ...this.state,
+                    test,
+                    screen: QUIZ_SCREEN,
+                    isLoading: false,
+                    quizTask: START_QUIZ_COMMAND
+                });
             } else { // welcome-screen включен
-                api.progressStatus().then(async (status) => {
-                    // if test was over, but result was not save for some reason
-                    const isFull = await api.progressFull();
-                    if (isFull && status === STATUS_IN_PROGRESS) {
-                        // save result and show the conclusion.
-                        wrapRequest(api.saveResult(), (key) => {
-                            trigger(new CustomEvent(EVENT_LOADED));
-                            trigger(new CustomEvent(EVENT_FINISH, {detail: {key}}));
-                            changeState({...state, status, isLoading: false, test, screen: SCREEN_RESULT});
-                        });
-                    } else if (status === STATUS_FINISHED && config.isShowResultAfterLoad()) {
-                        trigger(new CustomEvent(EVENT_LOADED));
-                        changeState({...state, status, isLoading: false, test, screen: SCREEN_RESULT});
+                this.api.progressStatus().then(async (status) => {
+                    if (status === STATUS_FINISHED && this.config.isShowResultAfterLoad()) {
+                        // закончен: показываем результат
+                        this.trigger(new CustomEvent(EVENT_LOADED));
+                        this.setState({...this.state, status, isLoading: false, test, screen: RESULT_SCREEN});
                     } else {
-                        trigger(new CustomEvent(EVENT_LOADED));
-                        if (test.paid) {
-                            changeState({...state, status, isLoading: false, test, screen: SCREEN_PAYMENT});
-                        } else {
-                            changeState({...state, status, isLoading: false, test, screen: SCREEN_WELCOME});
-                        }
+                        // не начат
+                        this.trigger(new CustomEvent(EVENT_LOADED));
+                        this.setState({...this.state, status, isLoading: false, test, screen: WELCOME_SCREEN});
                     }
                 });
             }
         });
-    }, [])
-
-    if (state.isLoading) {
-        return null;
-    }
-    if (state.error) {
-        return state.error;
     }
 
-    if (state.screen === SCREEN_PAYMENT) {
-        return <PaymentScreen api={api} onAccessed={whenAccessed} dispatcher={props.dispatcher}/>;
-    }
-
-    if (!state.test) {
-        return null;
-    }
-
-    const resultScreen = () => {
-        if (config.isDisplayReport()) {
-            return <ResultScreen api={api} test={state.test} restartClickHandler={whenClickStart}/>
+    render() {
+        if (this.state.isLoading) {
+            return null;
         }
-        return <div className="container">{t('Результат обрабатывается...')}</div>;
+
+        if (this.state.error) {
+            return this.state.error;
+        }
+
+        if (!this.state.test) {
+            return null;
+        }
+
+        const resultScreen = () => {
+            if (this.config.isDisplayReport()) {
+                return <ResultScreen api={this.api} test={this.state.test} restartClickHandler={this.whenClickStart}/>
+            }
+            return <div className="container">{t('Результат обрабатывается...')}</div>;
+        }
+
+        return (
+            <div id={'tnc'} className={'tnc'}>
+                {
+                    this.state.screen === PAYMENT_SCREEN &&
+                    <PaymentScreen api={this.api} onAccessed={this.whenAccessed} dispatcher={this.dispatcher}/>
+                }
+
+                {
+                    this.state.screen === WELCOME_SCREEN &&
+                    <WelcomeScreen test={this.state.test}
+                                   status={this.state.status}
+                                   startScreenConfig={this.config.getStartScreen()}
+                                   content={this.content}
+                                   startClickHandler={this.whenClickStart}
+                                   restoreClickHandler={this.whenClickRestore}/>
+                }
+
+                {
+                    this.state.screen === QUIZ_SCREEN &&
+                    <QuizScreen testId={this.api.testId}
+                                api={this.api}
+                                dispatcher={this.dispatcher}
+                                questionsOverHandler={this.whenQuestionsOver}
+                                task={this.state.quizTask}/>
+                }
+
+                {
+                    this.state.screen === RESULT_SCREEN && resultScreen()
+                }
+            </div>
+        )
     }
-
-    return (
-        <div id={'tnc'} className={'tnc'}>
-            {state.screen === SCREEN_RESULT && resultScreen()}
-
-            {state.screen === SCREEN_WELCOME ?
-                <WelcomeScreen test={state.test}
-                               status={state.status}
-                               startScreenConfig={config.getStartScreen()}
-                               content={content}
-                               startClickHandler={whenClickStart}
-                               restoreClickHandler={whenClickRestore}/> : null
-            }
-            {state.screen === SCREEN_QUIZ ?
-                <QuizScreen testId={api.testId}
-                            api={api}
-                            dispatcher={props.dispatcher}
-                            questionsOverHandler={whenQuestionsOver}
-                            task={state.quizTask}/> : null
-            }
-        </div>
-    )
 }

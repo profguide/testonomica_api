@@ -5,7 +5,7 @@ import {
     QUESTION_TYPE_OPTION,
     QUESTION_TYPE_RATING,
     QUESTION_TYPE_TEXT,
-    QUIZ_TASK_RESTORE
+    RESTORE_QUIZ_COMMAND
 } from "../../const";
 import FormOption from "../form/FormOption";
 import FormCheckbox from "../form/FormCheckbox";
@@ -13,7 +13,6 @@ import FormText from "../form/FormText";
 import FormRating from "../form/FormRating";
 import FormGradient from "../form/FormGradient";
 import ProgressBar from "../form/ProgressBar";
-import Loading from "../form/Loading";
 import TimerWrapper from "../form/TimerWrapper";
 import {t} from "../../t";
 import {EVENT_QUESTION_LOAD} from "../../events";
@@ -36,7 +35,8 @@ export default class QuizScreen extends Component {
         this.state = {
             isLoading: true,
             error: null,
-            question: null
+            question: null,
+            opacity: 0
         }
 
         this.api = props.api;
@@ -53,10 +53,12 @@ export default class QuizScreen extends Component {
         this.goForwardHandler = this.goForwardHandler.bind(this);
         this.goBackHandler = this.goBackHandler.bind(this);
         this.trigger = this.trigger.bind(this);
+
+        this.animateInterval = null;
     }
 
     componentDidMount() {
-        if (this.props.task === QUIZ_TASK_RESTORE) {
+        if (this.props.task === RESTORE_QUIZ_COMMAND) {
             this.next();
         } else {
             this.start();
@@ -98,6 +100,20 @@ export default class QuizScreen extends Component {
         this.prev();
     }
 
+    fadeIn() {
+        if (this.animateInterval) {
+            clearInterval(this.animateInterval);
+        }
+
+        const that = this;
+        this.animateInterval = setInterval(function () {
+            if (that.state.opacity >= 1) {
+                clearInterval(that.animateInterval);
+            }
+            that.setState({...that.state, opacity: that.state.opacity + 0.05});
+        }, 10);
+    }
+
     async saveAndForward(value) {
         // save the answer
         this.setState({...this.state, isLoading: true});
@@ -114,8 +130,9 @@ export default class QuizScreen extends Component {
 
     async wrapQuestionResponse(promise) {
         await this.wrapResponse(promise, (question) => {
-            this.setState({...this.state, isLoading: false, question: question});
-            this.trigger(new CustomEvent(EVENT_QUESTION_LOAD));
+            this.setState({...this.state, isLoading: false, question: question, opacity: 0});
+            this.trigger(new CustomEvent(EVENT_QUESTION_LOAD, {detail: {number: question.number}}));
+            this.fadeIn();
         });
     }
 
@@ -139,7 +156,8 @@ export default class QuizScreen extends Component {
             return this.state.error;
         }
         if (this.state.question === null) {
-            return <div className="container"><Loading/></div>;
+            return null;
+            // return <div className="container"><Loading/></div>;
         }
         const question = this.state.question;
         const options = question.options;
@@ -153,7 +171,7 @@ export default class QuizScreen extends Component {
             <section className='tnc-q-wrapper'>
                 <article className={'tnc-q tnc-q__' + this.props.testId + '-' + question.id}>
                     <div className="container">
-                        <div className="tnc-q-inner">
+                        <div className="tnc-q-inner" style={{opacity: this.state.opacity}}>
                             <TimerWrapper timer={question.timer} goForwardHandler={this.goForwardHandler}
                                           key={question.id}>
                                 {question.img
