@@ -20,10 +20,11 @@ export default class ProgressStorage {
     }
 
     async addAnswer(answer) {
-        const answers = this._getStorageData().answers;
+        const storage = this._getStorageData();
+        const answers = storage.answers;
         answers[answer.questionId] = answer.value;
         this._updateField('answers', answers);
-        // console.log('Storage: answer added', answers);
+        this._updateField('last', answer.questionId);
     }
 
     async getAnswers() {
@@ -31,11 +32,15 @@ export default class ProgressStorage {
     }
 
     async getLastAnswer() {
-        const answers = this._getStorageData().answers;
-        const keys = Object.keys(answers);
-        const lastId = keys[keys.length - 1];
-        const lastValue = answers[lastId];
-        return Answer.createImmutable(lastId, lastValue);
+        const storage = this._getStorageData();
+        const answers = storage.answers;
+        let lastId = storage.last;
+        // for the back compatibility, when there was no 'last' (added on Feb 27, so in a 3 days might be removed this check)
+        if (!lastId) {
+            const keys = Object.keys(answers);
+            lastId = keys[keys.length - 1];
+        }
+        return Answer.createImmutable(lastId, answers[lastId]);
     }
 
     async getLength() {
@@ -64,7 +69,8 @@ export default class ProgressStorage {
     _initLocalStorage() {
         const data = JSON.stringify({
             resultKey: null,
-            answers: {} // answers
+            answers: {}, // answers
+            last: null // last answer id for restoring
         });
         localStorage.setItem(this.storageName, data);
     }
