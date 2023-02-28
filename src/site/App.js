@@ -107,6 +107,11 @@ export default class App extends React.Component {
 
     componentDidMount() {
         this.wrapRequest(this.api.description(), (test) => {
+            // это не срабатывает при загрузке страницы. видимо это надо загружать раньше.
+            // check version: if test.version !== this.api.answersVersion() {
+            //  alert('Версия теста поменялась.');
+            // }
+
             if (this.config.startScreen === START_SCREEN_RESTORE) {
                 this.trigger(new CustomEvent(EVENT_LOADED));
                 this.setState({
