@@ -18,6 +18,15 @@ const QUIZ_SCREEN = 'quiz';
 const RESULT_SCREEN = 'result';
 const PAYMENT_SCREEN = 'payment';
 
+/**
+ * Нужно много переделать.
+ * Причина:
+ * 1. сильная связанность компонентов - API, storage (это можно зарефакторить)
+ * 2. единоразовая загрузка вопросов (это можно зарефакторить)
+ * 3. нужно передать управление клиенту - чтобы был конструктор (сделано много)
+ *
+ * Можно всё рефакторить постепенно. К счастью App обёрнут.
+ */
 export default class App extends React.Component {
     constructor(props) {
         super(props);

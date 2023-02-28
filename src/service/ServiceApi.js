@@ -7,12 +7,27 @@ import Order from "./types/Order";
 import {detectLocale} from "../util";
 
 /**
- * Low-level API: requests, storing data
+ * TODO
+ *  1. Разделить API и storage. Добавить QuestionStorage. И пусть тест работает QuestionManager, а не с API.
+ *     Можно загрузить информацию о тесте до инициализации приложения - это хорошо, потому что
+ *     мне сейчас нужно как раз ещё до показа WelcomeScreen узнать - изменилась ли версия теста.
+ *     Таким образом можно всё сделать и хорошо и красиво. Где-то в index.js:
+ *     const test = api.description();
+ *     const qm = new QuestionManager(test.questions); // вопросы хранятся в Map или Array - чтобы порядок сохранялся.
+ *     const am = new AnswerManager(storage);
+ *     <App... qm=qm, am=am />
+ *     Внутри App:
+ *      qm.next(id);
+ *      ...
+ *      Сохрание ответов и загрузка следующего в QuizScreen:
+ *          am.saveAnswer(answer)
+ *              .then(qm.nextTo(question))
+ *              .then(question => {
+ *                  this.setState({...this.state, question});
+ *                  this.dispatcher.dispatch(new Event(LOAD_QUESTION_EVENT, {detail: {target: this, number: question.number}}));
+ *              }));
  *
- * todo split:
- *  accessApi - payment, check access etc.
- *  testApi - progress, result etc.
- *  token state вынести в синглтон. или лучше Redux
+ *
  */
 export default class ServiceApi {
     constructor(storage, testId, host, token) {
