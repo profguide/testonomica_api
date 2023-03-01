@@ -5,44 +5,55 @@ import ServiceApi from "./service/ServiceApi";
 import TncEventDispatcher from "./events/TncEventDispatcher";
 import Config from "./config";
 import {HOST, INIT_AUTO, START_SCREEN_API} from "./const";
-
+import {ANSWER_RECEIVE_EVENT, NO_MORE_QUESTIONS_EVENT, QUESTION_LOAD_EVENT} from "./events";
+import QuestionManager from "./Question/QuestionManager";
+import AnswerManager from "./Progress/AnswerManager";
 import './style.scss'
-import {EVENT_QUESTION_LOAD, QUESTIONS_OVER_EVENT} from "./events";
 
 export class Testonomica {
     constructor(storage, testId, host, token) {
-        this.api = new ServiceApi(storage, testId, host, token);
+        this.api = new ServiceApi(testId, host, token);
+        this.am = new AnswerManager(storage);
+        this.qm = new QuestionManager(this.api);
         this.dispatcher = new TncEventDispatcher();
         this.setDefaultBehaviour();
     }
 
     createApp(tag, config) {
-        const app = <App api={this.api} config={config} content={tag.innerHTML} dispatcher={this.dispatcher}/>;
-        this.app = ReactDOM.render(app, tag);
+        this.api.description().then(test => {
+            const app = <App test={test}
+                             qm={this.qm}
+                             am={this.am}
+                             config={config}
+                             content={tag.innerHTML}
+                             dispatcher={this.dispatcher}/>;
+            this.app = ReactDOM.render(app, tag);
+        });
     }
 
     // вместо setDefaultBehaviour лучше обернуть Testonomica в TestonomicaDefaultAdapter
     setDefaultBehaviour() {
-
         const that = this;
 
         // when no questions left
-        this.dispatcher.addEventListener(QUESTIONS_OVER_EVENT, function () {
-            that.app.saveProgress(); // я думаю, что нет смысла поручать сохранение приложению, можно это сделать здесь.
+        this.dispatcher.addEventListener(NO_MORE_QUESTIONS_EVENT, function () {
+            // todo save it from here
+            // that.app.saveProgress();
+        });
+
+        // answer received
+        this.dispatcher.addEventListener(ANSWER_RECEIVE_EVENT, function (e) {
+            e.target.continueQuiz();
         });
 
         // the next question is loaded
-        this.dispatcher.addEventListener(EVENT_QUESTION_LOAD, function (e) {
-            e.target.renderQuestion();
+        this.dispatcher.addEventListener(QUESTION_LOAD_EVENT, function (e) {
+            e.target.renderQuiz();
         });
     }
 
     status() {
-        return this.api.progressStatus();
-    }
-
-    savingScreen() {
-        this.app.savingScreen();
+        return this.am.status();
     }
 
     addEventListener(name, callback) {

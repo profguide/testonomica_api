@@ -1,56 +1,19 @@
 import {HOST} from "../const";
 import axios from "axios";
-// import ProgressStorage from "./storage/ProgressStorage";
 import QuestionResponseHydrator from "./types/QuestionResponseHydrator";
-import Answer from "./types/Answer";
 import Order from "./types/Order";
 import {detectLocale} from "../util";
 
-/**
- * TODO
- *  1. Разделить API и storage. Добавить QuestionStorage. И пусть тест работает QuestionManager, а не с API.
- *     Можно загрузить информацию о тесте до инициализации приложения - это хорошо, потому что
- *     мне сейчас нужно как раз ещё до показа WelcomeScreen узнать - изменилась ли версия теста.
- *     Таким образом можно всё сделать и хорошо и красиво. Где-то в index.js:
- *     const test = api.description();
- *     const qm = new QuestionManager(test.questions); // вопросы хранятся в Map или Array - чтобы порядок сохранялся.
- *     const am = new AnswerManager(storage);
- *     <App... qm=qm, am=am />
- *     Внутри App:
- *      qm.next(id);
- *      ...
- *      Сохрание ответов и загрузка следующего в QuizScreen:
- *          am.saveAnswer(answer)
- *              .then(qm.nextTo(question))
- *              .then(question => {
- *                  this.setState({...this.state, question});
- *                  this.dispatcher.dispatch(new Event(LOAD_QUESTION_EVENT, {detail: {target: this, number: question.number}}));
- *              }));
- *
- *
- */
 export default class ServiceApi {
-    constructor(storage, testId, host, token) {
+    constructor(testId, host, token) {
         if (!testId) {
             throw new Error('testId must be defined.');
         }
         this.testId = testId;
         this.host = (host ?? HOST) + (detectLocale() === 'en' ? '/en' : '');
         this.token = token;
-        this.storage = storage;
-        //
-        // this.storage.getAnswers().then(collection => {
-        //     collection.forEach((doc) => {
-        //         console.log(doc.id)
-        //         console.log(doc.data())
-        //     });
-        // })
-
-
-        //
 
         this.test = null; // loaded brief about test
-        this.question = null; // loaded question (current question)
     }
 
     hasAccess() {
@@ -104,6 +67,7 @@ export default class ServiceApi {
             responseType: 'json',
         }).then(response => {
             this.test = {
+                id: this.testId,
                 name: response.data.name,
                 description: response.data.description,
                 duration: response.data.duration,
@@ -114,50 +78,37 @@ export default class ServiceApi {
         })
     }
 
-    progressStatus() {
-        return this.storage.getStatus();
-    }
-
-    async progressFull() {
-        return this.test.length === await this.storage.getLength();
-    }
-
-    async saveResult() {
-        console.log('Saving...');
-        return this.storage.getAnswers().then(answers => {
-            return axios(this.tokenizedRequest({
-                method: 'post',
-                url: this.buildUrl(`/save/${this.testId}/`),
-                data: {
-                    progress: answers,
-                }
-            })).then(response => {
-                this.token = response.headers['x-token'];
-                const key = response.data.key;
-                this.storage.setFinished(key);
-                return key;
-            });
-        })
-    }
-
-    async result() {
-        const key = await this.storage.resultKey();
-        return axios(this.tokenizedRequest({
-            method: 'get',
-            url: this.buildUrl(`/result/${this.testId}/?key=${key}`)
-        })).then(response => {
-            this.token = response.headers['x-token'];
-            return response;
-        });
-    }
-
-    resultKey() {
-        return this.storage.resultKey();
-    }
-
-    async clear() {
-        return await this.storage.clear();
-    }
+    // async saveResult() {
+    //     return this.storage.getAnswers().then(answers => {
+    //         return axios(this.tokenizedRequest({
+    //             method: 'post',
+    //             url: this.buildUrl(`/save/${this.testId}/`),
+    //             data: {
+    //                 progress: answers,
+    //             }
+    //         })).then(response => {
+    //             this.token = response.headers['x-token'];
+    //             const key = response.data.key;
+    //             this.storage.setFinished(key);
+    //             return key;
+    //         });
+    //     })
+    // }
+    //
+    // async result() {
+    //     const key = await this.storage.resultKey();
+    //     return axios(this.tokenizedRequest({
+    //         method: 'get',
+    //         url: this.buildUrl(`/result/${this.testId}/?key=${key}`)
+    //     })).then(response => {
+    //         this.token = response.headers['x-token'];
+    //         return response;
+    //     });
+    // }
+    //
+    // resultKey() {
+    //     return this.storage.resultKey();
+    // }
 
     /**
      * First query should be made throughout this.
@@ -165,51 +116,37 @@ export default class ServiceApi {
      * Иначе отправляет restart.
      * С другой стороны next может делать то же самое.
      */
-    first() {
+    async firstQuestion() {
         return axios(this.tokenizedRequest({
             method: 'get',
             url: this.buildUrl('/first/' + this.testId + '/'),
             responseType: 'json',
         })).then(response => {
             this.token = response.headers['x-token'];
-            this.question = (new QuestionResponseHydrator()).hydrate(response);
-            return this.question;
+            return (new QuestionResponseHydrator()).hydrate(response);
         })
     }
 
-    async next() {
-        let id;
-        if (this.question) {
-            id = this.question.id;
-        } else {
-            const answer = await this.storage.getLastAnswer();
-            id = answer.questionId;
-        }
+    async nextQuestion(id) {
         return axios(this.tokenizedRequest({
             method: 'get',
             url: this.buildUrl('/next/' + this.testId + '/?q=' + id),
             responseType: 'json',
         })).then(response => {
             this.token = response.headers['x-token'];
-            this.question = (new QuestionResponseHydrator()).hydrate(response);
-            return this.question;
+            return (new QuestionResponseHydrator()).hydrate(response);
         });
     }
 
-    prev() {
+    async prevQuestion(id) {
         return axios(this.tokenizedRequest({
             method: 'get',
-            url: this.buildUrl('/prev/' + this.testId + '/?q=' + this.question.id),
+            url: this.buildUrl('/prev/' + this.testId + '/?q=' + id),
             responseType: 'json',
         })).then(response => {
             this.token = response.headers['x-token'];
-            this.question = (new QuestionResponseHydrator()).hydrate(response);
-            return this.question;
+            return (new QuestionResponseHydrator()).hydrate(response);
         });
-    }
-
-    addAnswer(value) {
-        return this.storage.addAnswer(Answer.createImmutable(this.question.id, value));
     }
 
     buildUrl(path) {

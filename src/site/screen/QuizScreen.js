@@ -15,32 +15,22 @@ import FormGradient from "../form/FormGradient";
 import ProgressBar from "../form/ProgressBar";
 import TimerWrapper from "../form/TimerWrapper";
 import {t} from "../../t";
-import {EVENT_QUESTION_LOAD} from "../../events";
+import {ANSWER_RECEIVE_EVENT, NO_MORE_QUESTIONS_EVENT, QUESTION_LOAD_EVENT} from "../../events";
 
-/**
- * TODO auto
- * 1. check url (it should be ?auto)
- * 2. init Form with argument auto="true"
- *
- * or plugin-like:
- * 1. load library on page
- * 2. this script subscribes on question change, analize form and do action (press button)
- *
- * I choose the last, beacause it easier to make.
- */
 export default class QuizScreen extends Component {
     constructor(props) {
         super(props);
 
+        this.qm = props.qm;
+        this.am = props.am;
+
         this.state = {
-            active: false, // to be active by event handler
+            active: false, // to be activated by event handler
             isLoading: true,
             error: null,
             question: null,
             opacity: 0
         }
-
-        this.api = props.api;
 
         const formTypeMap = {};
         formTypeMap[QUESTION_TYPE_OPTION] = FormOption;
@@ -50,7 +40,7 @@ export default class QuizScreen extends Component {
         formTypeMap[QUESTION_TYPE_GRADIENT] = FormGradient;
         this.formTypeMap = formTypeMap;
 
-        this.selectionHandler = this.selectionHandler.bind(this);
+        this.save = this.save.bind(this);
         this.goForwardHandler = this.goForwardHandler.bind(this);
         this.goBackHandler = this.goBackHandler.bind(this);
         this.trigger = this.trigger.bind(this);
@@ -70,30 +60,58 @@ export default class QuizScreen extends Component {
         this.props.dispatcher.dispatchEvent(e);
     }
 
-    // The user made his choice
-    selectionHandler(value) {
-        return this.saveAndForward(value);
-    }
-
     start() {
         this.setState({...this.state, isLoading: true});
-        this.api.clear();
-        return this.wrapQuestionResponse(this.api.first());
+        this.am.clear();
+        this.qm.first().then(question => {
+            this.afterQuestionLoad(question);
+        });
     }
 
     next() {
         this.setState({...this.state, isLoading: true});
-        return this.wrapQuestionResponse(this.api.next());
+        // некрасиво, что приходится доставать ответ, но что делать -
+        // если тест находится в режими "продолжить",
+        // то менеджер вопросов ещё не знает какой вопрос был последний.
+        // По этой причине менеджер вопросов не имеет состояния.
+        // Можно вообще-то ему указать вопрос при инициализации, но
+        // во-первых вопрос ему придётся сразу загрузить, что отложит загрузку приложения (ну и пусть).
+        // а во-вторых настройка приложения станет более сложной для клиента.
+        // let qm = null;
+        // am.last().then(answer => {
+        //  const q = new QuestionManager(api, answer.questionId);
+        //  q.init().then() { // здесь будет загружен вопрос - теперь менеджер вопросов знает какой у него номер
+        //      qm = q;
+        //      dispatcher.dispatchEvent(new CustomEvent(QUESTION_MANAGER_INIT_EVENT);
+        //  }
+        // )
+        this.am.last().then(answer => {
+            this.qm.next(answer.questionId).then(question => {
+                this.afterQuestionLoad(question);
+            });
+        });
     }
 
     prev() {
         this.setState({...this.state, isLoading: true});
-        return this.wrapQuestionResponse(this.api.prev());
+        this.qm.prev(this.state.question.id).then(question => {
+            this.afterQuestionLoad(question);
+        });
+    }
+
+    afterQuestionLoad(question) {
+        this.setState({...this.state, isLoading: false, question: question, opacity: 0, active: false});
+        this.trigger(new CustomEvent(QUESTION_LOAD_EVENT, {
+            detail: {
+                number: question.number,
+                target: this
+            }
+        }));
     }
 
     // Forward button clicked: save answer and load the next question
     goForwardHandler() {
-        return this.saveAndForward(null);
+        return this.save(null);
     }
 
     // Back button clicked: load the previous question
@@ -115,42 +133,27 @@ export default class QuizScreen extends Component {
         }, 10);
     }
 
-    async saveAndForward(value) {
-        // save the answer
-        this.setState({...this.state, isLoading: true});
-        this.api.addAnswer(value).then(() => {
-            this.api.progressFull().then((isFull) => {
-                if (!isFull) {
-                    this.next();
-                } else {
-                    this.props.questionsOverHandler();
-                }
-            })
-        });
-    }
-
-    async wrapQuestionResponse(promise) {
-        await this.wrapResponse(promise, (question) => {
-            this.setState({...this.state, isLoading: false, question: question, opacity: 0, active: false});
-            this.trigger(new CustomEvent(EVENT_QUESTION_LOAD, {detail: {number: question.number, target: this}}));
-        });
-    }
-
-    async wrapResponse(promise, callback) {
-        await promise.then(callback).catch(error => {
-            let reason = t('Произошла ошибка во время загрузки.');
-            if (error.response) {
-                console.error(error.response.data.detail);
-                if (error.response.status === 403) {
-                    reason = t('Отказано в доступе.');
-                }
+    async save(value) {
+        this.am.add(this.state.question.id, value); // может быть даже сохранение следует поручить внешнему миру.
+        this.trigger(new CustomEvent(ANSWER_RECEIVE_EVENT, {
+            detail: {
+                target: this,
+                number: this.state.question.number
             }
-            console.error(error);
-            this.setState({...this.state, isLoading: false, error: reason});
-        });
+        }));
     }
 
-    renderQuestion() {
+    // public
+    continueQuiz() {
+        if (this.state.question.number >= this.props.quizLength) {
+            this.trigger(new CustomEvent(NO_MORE_QUESTIONS_EVENT, {detail: {number: this.state.question.number}}));
+        } else {
+            this.next();
+        }
+    }
+
+    // public
+    renderQuiz() {
         this.setState({...this.state, active: true})
         this.fadeIn();
     }
@@ -195,7 +198,7 @@ export default class QuizScreen extends Component {
                                       isLoading={this.state.isLoading}
                                       enabledBack={enabledBack}
                                       enabledForward={enabledForward}
-                                      selectionHandler={this.selectionHandler}
+                                      selectionHandler={this.save}
                                       goForwardHandler={this.goForwardHandler}
                                       goBackHandler={this.goBackHandler}/>
 

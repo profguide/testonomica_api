@@ -1,14 +1,23 @@
 export default class QuestionManager {
-    constructor(questions) {
-        this.questions = questions;
+    constructor(api) {
+        this.api = api;
     }
 
-    next() {
+    async first() {
+        return this.api.firstQuestion().then(question => {
+            return question;
+        });
     }
 
-    prev() {
+    async next(id) {
+        return this.api.nextQuestion(id).then(question => {
+            return question;
+        });
     }
 
-    first() {
+    async prev(id) {
+        return this.api.prevQuestion(id).then(question => {
+            return question;
+        });
     }
 }
