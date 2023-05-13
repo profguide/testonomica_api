@@ -6,7 +6,7 @@ import {
     START_SCREEN_START,
     STATUS_FINISHED
 } from "../const";
-import {EVENT_LOADED} from "../events";
+import {CLICK_RESTART_EVENT, CLICK_START_EVENT, EVENT_LOADED} from "../events";
 import ResultScreen from "./screen/ResultScreen";
 import WelcomeScreen from "./screen/WelcomeScreen";
 import QuizScreen from "./screen/QuizScreen";
@@ -36,6 +36,7 @@ export default class App extends React.Component {
         this.dispatcher = props.dispatcher;
 
         this.startClickHandler = this.startClickHandler.bind(this);
+        this.restartClickHandler = this.restartClickHandler.bind(this);
         this.restoreClickHandler = this.restoreClickHandler.bind(this);
     }
 
@@ -56,11 +57,19 @@ export default class App extends React.Component {
     // }
 
     startClickHandler() {
-        this.setState({...this.state, screen: QUIZ_SCREEN, quizTask: START_QUIZ_COMMAND});
+        this.trigger(new CustomEvent(CLICK_START_EVENT));
+    }
+
+    restartClickHandler() {
+        this.trigger(new CustomEvent(CLICK_RESTART_EVENT));
     }
 
     restoreClickHandler() {
         this.setState({...this.state, screen: QUIZ_SCREEN, quizTask: RESTORE_QUIZ_COMMAND});
+    }
+
+    start() {
+        this.setState({...this.state, screen: QUIZ_SCREEN, quizTask: START_QUIZ_COMMAND});
     }
 
     componentDidMount() {
@@ -83,7 +92,7 @@ export default class App extends React.Component {
         const resultScreen = () => {
             if (this.config.isDisplayReport()) {
                 return (
-                    <ResultScreen api={this.api} test={this.props.test} restartClickHandler={this.startClickHandler}/>
+                    <ResultScreen api={this.api} test={this.props.test} restartClickHandler={this.restartClickHandler}/>
                 );
             }
             return (
@@ -101,6 +110,7 @@ export default class App extends React.Component {
                         startScreenConfig={this.config.getStartScreen()}
                         content={this.content}
                         startClickHandler={this.startClickHandler}
+                        restartClickHandler={this.restartClickHandler}
                         restoreClickHandler={this.restoreClickHandler}/>
                 }
                 {

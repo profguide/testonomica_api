@@ -4,7 +4,10 @@ export default class TncEventDispatcher {
     }
 
     addEventListener(name, callback) {
-        this.listeners[name] = callback
+        if (!(this.listeners[name] && Array.isArray(this.listeners[name]))) {
+            this.listeners[name] = [];
+        }
+        this.listeners[name].push(callback);
     }
 
     clearEventListeners(name) {
@@ -13,7 +16,9 @@ export default class TncEventDispatcher {
 
     dispatchEvent(e) {
         if (this.listeners[e.type]) {
-            this.listeners[e.type](e.detail);
+            for (const name in this.listeners[e.type]) {
+                this.listeners[e.type][name](e.detail);
+            }
         }
     }
 }

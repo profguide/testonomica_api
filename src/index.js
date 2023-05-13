@@ -5,7 +5,13 @@ import ServiceApi from "./service/ServiceApi";
 import TncEventDispatcher from "./events/TncEventDispatcher";
 import Config from "./config";
 import {HOST, INIT_AUTO, START_SCREEN_API} from "./const";
-import {ANSWER_RECEIVE_EVENT, NO_MORE_QUESTIONS_EVENT, QUESTION_LOAD_EVENT} from "./events";
+import {
+    ANSWER_RECEIVE_EVENT,
+    CLICK_RESTART_EVENT,
+    CLICK_START_EVENT,
+    NO_MORE_QUESTIONS_EVENT,
+    QUESTION_LOAD_EVENT
+} from "./events";
 import QuestionManager from "./Question/QuestionManager";
 import AnswerManager from "./Progress/AnswerManager";
 import './style.scss'
@@ -50,6 +56,20 @@ export class Testonomica {
         this.dispatcher.addEventListener(QUESTION_LOAD_EVENT, function (e) {
             e.target.renderQuiz();
         });
+
+        // click start button
+        this.dispatcher.addEventListener(CLICK_START_EVENT, function (e) {
+            that.start();
+        });
+
+        // click restart button
+        this.dispatcher.addEventListener(CLICK_RESTART_EVENT, function (e) {
+            that.start();
+        });
+    }
+
+    start() {
+        this.app.start();
     }
 
     status() {

@@ -19,7 +19,7 @@ export default class WelcomeScreen extends Component {
                         {t('Продолжить тест')}
                     </button>
                     <button
-                        onClick={this.props.startClickHandler}
+                        onClick={this.props.restartClickHandler}
                         className={'tnc-btn tnc-welcome__btn tnc-welcome__btn_restart'}>
                         {t('Начать сначала')}
                     </button>
