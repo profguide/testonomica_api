@@ -4,6 +4,7 @@
     "module": "commonjs",
     "lib": [
       "es6",
+      "es5",
       "dom"
     ],
     "allowJs": true,
@@ -14,6 +15,12 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "jsx": "react"
-  }
+    "jsx": "react",
+  },
+  "exclude": [
+    "node_modules",
+    "public_html",
+//    "tests",
+//    "**/*.test.ts"
+  ]
 }

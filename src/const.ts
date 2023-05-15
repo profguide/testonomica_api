@@ -1,3 +1,11 @@
+// module.exports = {
+//     INIT_AUTO: 'auto',
+//     STATUS_NONE: 0,
+//     STATUS_IN_PROGRESS: 1,
+//     STATUS_FINISHED: 2,
+// }
+//
+
 export const INIT_AUTO = 'auto';
 export const INIT_MANUAL = 'manual';
 

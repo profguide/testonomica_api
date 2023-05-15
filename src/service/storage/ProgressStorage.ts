@@ -7,7 +7,7 @@ export default class ProgressStorage {
 
     constructor(id: string) {
         this.storageName = 'testonomica_test_' + id;
-        if (!localStorage.getItem(this.storageName)) {
+        if (!window.localStorage.getItem(this.storageName)) {
             this._initLocalStorage();
         } else {
             // новый формат хранилища Map был выложен 13 мая 2023.
@@ -75,7 +75,7 @@ export default class ProgressStorage {
     }
 
     _getStorageData() {
-        return JSON.parse(localStorage.getItem(this.storageName) ?? '');
+        return JSON.parse(window.localStorage.getItem(this.storageName) ?? '');
     }
 
     _initLocalStorage() {
@@ -83,7 +83,7 @@ export default class ProgressStorage {
             resultKey: null,
             answers: [], // answers, map, e.g. [[900, ['b']], [100, ['a']]]
         });
-        localStorage.setItem(this.storageName, data);
+        window.localStorage.setItem(this.storageName, data);
     }
 
     _updateField(key: string, value: any) {
@@ -93,6 +93,6 @@ export default class ProgressStorage {
     }
 
     _update(data: any) {
-        localStorage.setItem(this.storageName, JSON.stringify(data));
+        window.localStorage.setItem(this.storageName, JSON.stringify(data));
     }
 }
