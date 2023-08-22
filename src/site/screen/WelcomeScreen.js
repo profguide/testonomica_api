@@ -61,10 +61,55 @@ export default class WelcomeScreen extends Component {
                         <div className={'tnc-welcome__duration'}>{this.props.test.duration} {t('минут')}</div>
                         <div className={'tnc-welcome__description'}
                              dangerouslySetInnerHTML={{__html: this.props.test.description}}/>
+                        <Authors authors={this.props.test.authors} />
                         {buttons}
                     </div>
                 </div>
             )
         }
+    }
+}
+
+class Authors extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        if (!this.props.authors) {
+            return null;
+        }
+        if (this.props.authors.length === 0) {
+            return null;
+        }
+
+        // let output = null;
+
+        // if (this.props.authors.length === 1) {
+        //     output = t('Автор теста:')
+        // } else {
+        //     output = t('Авторы теста:')
+        // }
+
+        // output += this.props.authors.map((author, i) => {
+        //     const str = <a href="/">{author}</a>;
+        //     // if (i+1 < this.props.test.authors.length) {
+        //     //     output += ',';
+        //     // }
+        //     return str;
+        // });
+
+        // output += '.';
+
+        return <div className={'tnc-welcome__description'}>
+            {this.props.authors.length > 1 ? t('Авторы теста:') : t('Автор теста:')}
+            {' '}
+            {this.props.authors.map((author, key) => {
+                return <span key={key}>
+                    <a href={author.url}>{author.name}</a>
+                    {key + 1 < this.props.authors.length ? ', ' : '.'}
+                </span>
+            })}
+        </div>;
     }
 }

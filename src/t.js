@@ -23,6 +23,8 @@ lines['Нейтрально'] = 'Neutral';
 lines['Закончилось время, отведённое на вопрос'] = 'Question time expired';
 lines['секунд'] = 'seconds';
 lines['Нажмите кнопку продолжить, когда будете готовы продолжить тест.'] = 'Click the Continue button when you are ready to continue with the test.';
+lines['Автор теста:'] = 'Test author:';
+lines['Авторы теста:'] = 'Test authors:';
 
 export function t(str) {
     if (detectLocale() === 'en') {

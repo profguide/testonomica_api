@@ -70,6 +70,7 @@ export default class ServiceApi {
                 id: this.testId,
                 name: response.data.name,
                 description: response.data.description,
+                authors: response.data.authors,
                 duration: response.data.duration,
                 length: response.data.length,
                 paid: response.data.paid
