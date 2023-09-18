@@ -3,6 +3,7 @@ import {detectLocale} from "./util";
 const lines = {}
 lines['минут'] = 'minutes';
 lines['Начать'] = 'Start';
+lines['Начать тест'] = 'Start the test';
 lines['Продолжить'] = 'Continue';
 lines['Продолжить тест'] = 'Continue test';
 lines['Начать сначала'] = 'Restart';
@@ -25,6 +26,7 @@ lines['секунд'] = 'seconds';
 lines['Нажмите кнопку продолжить, когда будете готовы продолжить тест.'] = 'Click the Continue button when you are ready to continue with the test.';
 lines['Автор теста:'] = 'Test author:';
 lines['Авторы теста:'] = 'Test authors:';
+lines['Инструкция'] = 'Instruction';
 
 export function t(str) {
     if (detectLocale() === 'en') {

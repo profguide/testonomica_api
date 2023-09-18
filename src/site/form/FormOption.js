@@ -14,7 +14,6 @@ export default class FormOption extends Component {
                         {
                             option.img
                                 ? <img src={option.img}
-                                       style={{maxHeight: 100 + 'px'}}
                                        onClick={!this.props.isLoading ? () => this.props.selectionHandler(option.value) : null}
                                        className={'tnc-q-form__option-img'}
                                        alt={'Task'}/>

@@ -23,6 +23,7 @@
     font-size: inherit;
     line-height: 1.25;
     white-space: normal;
+    outline: none;
     border: 1px solid #8080801a;
     border-radius: 3px;
     cursor: pointer;
@@ -107,7 +108,37 @@
     &_restart {
       background-color: #f8f9fa;
       border-color: #f8f9fa;
+      color: #000;
     }
+  }
+}
+
+.tnc-instruction {
+  &__title {
+    margin-bottom: 0.5rem;
+  }
+
+  &__subtitle {
+    --bs-text-opacity: 1;
+    color: #6c757d !important;
+    font-size: 1.25rem;
+    font-weight: 300;
+  }
+
+  &__text {
+    margin: 0;
+  }
+
+  &__btn {
+    margin-top: 0.5rem;
+    padding: 0.9rem 1.5rem;
+    min-height: 50px;
+    min-width: 175px;
+    margin-right: 4px;
+
+    background-color: #FB9F00;
+    border-color: #FB9F00;
+    color: #fff;
   }
 }
 
@@ -134,10 +165,8 @@
 
   &__img {
     max-width: 400px;
-    //margin: 0 auto;
     margin-bottom: 30px;
     display: block;
-    filter: invert(1);
   }
 
   &__form {
@@ -205,10 +234,7 @@
   }
 
   &__option-img {
-    //background: #f0f0f0;
-    filter: invert(1);
-    width: 120px;
-    height: 70px;
+    max-width: 120px;
     cursor: pointer;
 
     &:hover {
@@ -683,6 +709,20 @@
       font-family: 'Cera Round Pro';
       font-weight: bold;
       font-size: 18px;
+    }
+  }
+}
+
+.tnc-q {
+  &__5-513 {
+    .tnc-q-form__option-img {
+    }
+  }
+
+  &__5-535 {
+    .tnc-q-form__option-img {
+      height: 60px;
+      object-fit: cover;
     }
   }
 }

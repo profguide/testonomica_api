@@ -7,12 +7,14 @@ import {
     STATUS_FINISHED
 } from "../const";
 import {CLICK_RESTART_EVENT, CLICK_START_EVENT, EVENT_LOADED} from "../events";
-import ResultScreen from "./screen/ResultScreen";
 import WelcomeScreen from "./screen/WelcomeScreen";
+import InstructionScreen from "./screen/InstructionScreen";
 import QuizScreen from "./screen/QuizScreen";
+import ResultScreen from "./screen/ResultScreen";
 import {t} from "../t";
 
 const WELCOME_SCREEN = 'welcome';
+const INSTRUCTION_SCREEN = 'instruction';
 const QUIZ_SCREEN = 'quiz';
 const RESULT_SCREEN = 'result';
 
@@ -38,6 +40,8 @@ export default class App extends React.Component {
         this.startClickHandler = this.startClickHandler.bind(this);
         this.restartClickHandler = this.restartClickHandler.bind(this);
         this.restoreClickHandler = this.restoreClickHandler.bind(this);
+        this.instructionDoneClickHandler = this.instructionDoneClickHandler.bind(this);
+        this.start = this.start.bind(this);
     }
 
     trigger(e) {
@@ -69,6 +73,20 @@ export default class App extends React.Component {
     }
 
     start() {
+        // the instruction screen runs only if start/restart buttons where clicked,
+        // this is because restoreClickHandler starts test directly,
+        // this logic seems to me appropriate for now,
+        // however, if you want to run the instruction in every case then consider doing,
+        // some changes in the restoreClickHandler in a way,
+        // it checked test.instuction before running the quiz.
+        if (this.props.test.instruction) {
+            this.setState({...this.state, screen: INSTRUCTION_SCREEN});
+        } else {
+            this.setState({...this.state, screen: QUIZ_SCREEN, quizTask: START_QUIZ_COMMAND});
+        }
+    }
+
+    instructionDoneClickHandler() {
         this.setState({...this.state, screen: QUIZ_SCREEN, quizTask: START_QUIZ_COMMAND});
     }
 
@@ -112,6 +130,12 @@ export default class App extends React.Component {
                         startClickHandler={this.startClickHandler}
                         restartClickHandler={this.restartClickHandler}
                         restoreClickHandler={this.restoreClickHandler}/>
+                }
+                {
+                    this.state.screen === INSTRUCTION_SCREEN &&
+                    <InstructionScreen 
+                        test={this.props.test} 
+                        startClickHandler={this.instructionDoneClickHandler}/>
                 }
                 {
                     this.state.screen === QUIZ_SCREEN &&
