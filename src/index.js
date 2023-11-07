@@ -7,10 +7,14 @@ import Config from "./config";
 import {HOST, INIT_AUTO, START_SCREEN_API} from "./const";
 import {
     ANSWER_RECEIVE_EVENT,
+    CLICK_ANY_START_EVENT,
     CLICK_RESTART_EVENT,
+    CLICK_RESTORE_EVENT,
     CLICK_START_EVENT,
+    EVENT_FINISH,
     NO_MORE_QUESTIONS_EVENT,
-    QUESTION_LOAD_EVENT
+    QUESTION_LOAD_EVENT,
+    STATUS_LOADED_EVENT
 } from "./events";
 import QuestionManager from "./Question/QuestionManager";
 import AnswerManager from "./Progress/AnswerManager";
@@ -27,6 +31,9 @@ export class Testonomica {
 
     createApp(tag, config) {
         this.api.description().then(test => {
+            if (config.progress) {
+                this.am.importBase64(config.progress);
+            }
             const app = <App test={test}
                              qm={this.qm}
                              am={this.am}
@@ -42,9 +49,13 @@ export class Testonomica {
         const that = this;
 
         // when no questions left
-        this.dispatcher.addEventListener(NO_MORE_QUESTIONS_EVENT, function () {
-            // todo save it from here
-            // that.app.saveProgress();
+        this.dispatcher.addEventListener(NO_MORE_QUESTIONS_EVENT, function (e) {
+            that.am.getAll()
+                .then(answers => that.api.saveResult(answers))
+                .then(key => {
+                    that.am.clear();
+                    that.dispatcher.dispatchEvent(new CustomEvent(EVENT_FINISH, {detail: {result_key: key}}))
+                });
         });
 
         // answer received
@@ -57,6 +68,11 @@ export class Testonomica {
             e.target.renderQuiz();
         });
 
+        // status loaded
+        this.dispatcher.addEventListener(STATUS_LOADED_EVENT, function (e) {
+            that.renderButtons();
+        });
+
         // click start button
         this.dispatcher.addEventListener(CLICK_START_EVENT, function (e) {
             that.start();
@@ -66,10 +82,66 @@ export class Testonomica {
         this.dispatcher.addEventListener(CLICK_RESTART_EVENT, function (e) {
             that.start();
         });
+
+        // click restore button
+        this.dispatcher.addEventListener(CLICK_RESTORE_EVENT, function (e) {
+            that.restore();
+        });
+    }
+
+    // render buttons for all selectors (if client site has them anywhere on page).
+    // usage: <div class="testonomica_buttons"></div>
+    renderButtons() {
+        const widgetButtonContainers = document.querySelectorAll('.testonomica_buttons');
+        if (widgetButtonContainers.length === 0) {
+            return;
+        }
+
+        const that = this;
+
+        this.status().then(status => {
+            widgetButtonContainers.forEach(function (container) {
+                if (status === 0) {
+                    const startButton = document.createElement('button');
+                    startButton.className = 'tnc-welcome__btn_start';
+                    startButton.innerText = 'Начать';
+                    startButton.addEventListener('click', function () {
+                        that.dispatcher.dispatchEvent(new CustomEvent(CLICK_ANY_START_EVENT));
+                        that.dispatcher.dispatchEvent(new CustomEvent(CLICK_START_EVENT));
+                    });
+
+                    container.appendChild(startButton);
+                } else {
+                    const startButton = document.createElement('button');
+                    startButton.className = 'tnc-welcome__btn_restore';
+                    startButton.innerText = 'Продолжить тест';
+                    startButton.addEventListener('click', function () {
+                        that.dispatcher.dispatchEvent(new CustomEvent(CLICK_ANY_START_EVENT));
+                        that.dispatcher.dispatchEvent(new CustomEvent(CLICK_RESTORE_EVENT));
+                    });
+
+                    const restartButton = document.createElement('button');
+                    restartButton.className = 'tnc-welcome__btn_restart';
+                    restartButton.innerText = 'Начать сначала';
+                    restartButton.addEventListener('click', function () {
+                        that.dispatcher.dispatchEvent(new CustomEvent(CLICK_ANY_START_EVENT));
+                        that.dispatcher.dispatchEvent(new CustomEvent(CLICK_RESTART_EVENT));
+                    });
+
+                    // Добавляем кнопки в div
+                    container.appendChild(startButton);
+                    container.appendChild(restartButton);
+                }
+            });
+        });
     }
 
     start() {
         this.app.start();
+    }
+
+    restore() {
+        this.app.restore();
     }
 
     status() {

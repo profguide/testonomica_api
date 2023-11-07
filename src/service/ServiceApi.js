@@ -1,7 +1,6 @@
 import {HOST} from "../const";
 import axios from "axios";
 import QuestionResponseHydrator from "./types/QuestionResponseHydrator";
-import Order from "./types/Order";
 import {detectLocale} from "../util";
 
 export default class ServiceApi {
@@ -42,23 +41,6 @@ export default class ServiceApi {
         });
     }
 
-    getOrder() {
-        return axios(this.tokenizedRequest({
-            method: 'get',
-            url: this.host + '/access/order/',
-            responseType: 'json',
-        })).then(response => {
-            const data = response.data.order;
-            return new Order(
-                data.id,
-                data.description,
-                data.price,
-                data.count,
-                data.sum
-            );
-        });
-    }
-
     // brief for welcome page
     description() {
         return axios({
@@ -80,37 +62,18 @@ export default class ServiceApi {
         })
     }
 
-    // async saveResult() {
-    //     return this.storage.getAnswers().then(answers => {
-    //         return axios(this.tokenizedRequest({
-    //             method: 'post',
-    //             url: this.buildUrl(`/save/${this.testId}/`),
-    //             data: {
-    //                 progress: answers,
-    //             }
-    //         })).then(response => {
-    //             this.token = response.headers['x-token'];
-    //             const key = response.data.key;
-    //             this.storage.setFinished(key);
-    //             return key;
-    //         });
-    //     })
-    // }
-    //
-    // async result() {
-    //     const key = await this.storage.resultKey();
-    //     return axios(this.tokenizedRequest({
-    //         method: 'get',
-    //         url: this.buildUrl(`/result/${this.testId}/?key=${key}`)
-    //     })).then(response => {
-    //         this.token = response.headers['x-token'];
-    //         return response;
-    //     });
-    // }
-    //
-    // resultKey() {
-    //     return this.storage.resultKey();
-    // }
+    async saveResult(answers) {
+        return axios(this.tokenizedRequest({
+            method: 'post',
+            url: this.buildUrl(`/save/${this.testId}/`),
+            data: {
+                progress: answers,
+            }
+        })).then(response => {
+            this.token = response.headers['x-token'];
+            return response.data.key;
+        });
+    }
 
     /**
      * First query should be made throughout this.
@@ -130,6 +93,7 @@ export default class ServiceApi {
     }
 
     async nextQuestion(id) {
+        // 913? может быть не это последний?
         return axios(this.tokenizedRequest({
             method: 'get',
             url: this.buildUrl('/next/' + this.testId + '/?q=' + id),

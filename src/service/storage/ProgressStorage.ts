@@ -31,7 +31,7 @@ export default class ProgressStorage {
     }
 
     async import(progress: Progress) {
-        this._updateField('answers', Array.from(progress.get().entries()));
+        this._updateField('answers', Array.from(progress.get().entries())); // todo может тут что-то не так?
     }
 
     async addAnswer(answer: Answer) {

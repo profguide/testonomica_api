@@ -146,7 +146,7 @@
   height: 100%;
 
   &__name {
-    font-family: 'Cera Round Pro';
+    font-family: 'Cera Round Pro', sans-serif;
     font-weight: 400;
     font-size: 24px;
     margin: 0 0 1rem 0;
@@ -257,7 +257,7 @@
     background: #fff;
     text-align: left;
 
-    font-family: 'Cera Round Pro';
+    font-family: 'Cera Round Pro', sans-serif;
     font-weight: bold;
     font-size: 18px;
 
@@ -576,7 +576,7 @@
   }
 
   &__line {
-    background: #0085FF;
+    background: #0085ff91;
     border-radius: 10px;
     height: 13px;
   }
@@ -596,6 +596,12 @@
   }
 
   &__btn-restart {
+  }
+}
+
+.tnc-q-wrapper {
+  &_loading {
+    opacity: 0.7;
   }
 }
 
@@ -648,13 +654,13 @@
     }
 
     .tnc-q__name {
-      font-family: 'Cera Round Pro';
+      font-family: 'Cera Round Pro', sans-serif;
       font-weight: 400;
       font-size: 22px;
     }
 
     .tnc-q-form__option-btn {
-      font-family: 'Cera Round Pro';
+      font-family: 'Cera Round Pro', sans-serif;
       font-weight: bold;
       font-size: 16px;
     }
@@ -700,13 +706,13 @@
     }
 
     .tnc-q__name {
-      font-family: 'Cera Round Pro';
+      font-family: 'Cera Round Pro', sans-serif;
       font-weight: 400;
       font-size: 24px;
     }
 
     .tnc-q-form__option-btn {
-      font-family: 'Cera Round Pro';
+      font-family: 'Cera Round Pro', sans-serif;
       font-weight: bold;
       font-size: 18px;
     }
@@ -724,5 +730,27 @@
       height: 60px;
       object-fit: cover;
     }
+  }
+}
+
+// кнопки на странице сайта, если live mode
+.testonomica_buttons {
+  .tnc-welcome__btn_start, .tnc-welcome__btn_restore, .tnc-welcome__btn_restart {
+    padding: 15px 30px;
+    border: 0;
+    outline: none;
+    border-radius: 5px;
+  }
+
+  .tnc-welcome__btn_start {
+
+  }
+
+  .tnc-welcome__btn_restore {
+    margin-right: 5px;
+  }
+
+  .tnc-welcome__btn_restart {
+
   }
 }

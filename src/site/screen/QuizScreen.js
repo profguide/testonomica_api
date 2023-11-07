@@ -147,6 +147,7 @@ export default class QuizScreen extends Component {
     continueQuiz() {
         if (this.state.question.number >= this.props.quizLength) {
             this.trigger(new CustomEvent(NO_MORE_QUESTIONS_EVENT, {detail: {number: this.state.question.number}}));
+            this.setState({...this.state, isLoading: true});
         } else {
             this.next();
         }
@@ -156,6 +157,11 @@ export default class QuizScreen extends Component {
     renderQuiz() {
         this.setState({...this.state, active: true})
         this.fadeIn();
+    }
+
+    // public
+    progressHash() {
+        return this.am.getHash();
     }
 
     render() {
@@ -178,7 +184,7 @@ export default class QuizScreen extends Component {
         const Form = this.formTypeMap[type];
 
         return (
-            <section className='tnc-q-wrapper'>
+            <section className={'tnc-q-wrapper ' + (this.state.isLoading ? 'tnc-q-wrapper_loading' : null)}>
                 <article className={'tnc-q tnc-q__' + this.props.testId + '-' + question.id}>
                     <div className="container">
                         <div className="tnc-q-inner" style={{opacity: this.state.opacity}}>
