@@ -35,7 +35,7 @@ export default class AnswerManager {
     importBase64(base64) {
         const json = atob(base64);
         const array = JSON.parse(json);
-        const progress = new Progress(new Map(array)); // todo видимо неправильн здесь что-то. new Map...
+        const progress = new Progress(new Map(array));
         return this.storage.import(progress);
     }
 }
